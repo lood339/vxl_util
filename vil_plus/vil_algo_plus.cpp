@@ -9,6 +9,8 @@
 #include "vil_algo_plus.h"
 #include "vnl_plus.h"
 #include <vil/vil_flip.h>
+#include <vil/vil_fill.h>
+#include <vil/vil_plane.h>
 
 // for test
 //#include "vil_plus.h"
@@ -299,4 +301,23 @@ bool VilAlgoPlus::linePixels(const vgl_point_2d<double> & p0, const vgl_point_2d
     }
     return true;
 }
+
+bool VilAlgoPlus::fill_line(vil_image_view<vxl_byte> & image,
+                            const vgl_point_2d<double> & p1,
+                            const vgl_point_2d<double> & p2,
+                            const vcl_vector<vxl_byte> & colour)
+{
+    int ai = p1.x();
+    int aj = p1.y();
+    int bi = p2.x();
+    int bj = p2.y();
+    
+    for (int i = 0; i<image.nplanes(); i++) {
+        vil_image_view<vxl_byte> plane = vil_plane(image, i);
+        vil_fill_line(plane, ai, aj, bi, bj, colour[i]);
+    }
+    
+    return true;
+}
+
 

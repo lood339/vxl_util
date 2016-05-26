@@ -15,7 +15,7 @@
 #include <vnl/vnl_math.h>
 #include <vnl/vnl_polynomial.h>
 #include <vnl/vnl_matrix_fixed.h>
-#include <vgl/vgl_ellipse_2d.h>
+//#include <vgl/vgl_ellipse_2d.h>
 
 class VnlPlus
 {
@@ -81,9 +81,11 @@ public:
     
     // chisquare_val: 5.991 --> 95%
 	//  9.210 --> 99%
+    /*
     static bool cov2ellipse(const vnl_matrix_fixed<double, 2, 2> & cov,
                             const vgl_point_2d<double> & center, vgl_ellipse_2d<double> & ellipse,
                             double chiSquareVal = 9.21);
+     */
     
     
     // visualization

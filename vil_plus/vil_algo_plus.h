@@ -43,6 +43,12 @@ public:
     
     // points located in the line p0 -- p1
     static bool linePixels(const vgl_point_2d<double> & p0, const vgl_point_2d<double> & p1, vcl_vector<vgl_point_2d<double> > & linePts);
+    
+    // fill a line in the image
+    static bool fill_line(vil_image_view<vxl_byte> & image,
+                          const vgl_point_2d<double> & p1,
+                          const vgl_point_2d<double> & p2,
+                          const vcl_vector<vxl_byte> & colour);
 };
 
 

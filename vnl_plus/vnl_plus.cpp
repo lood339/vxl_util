@@ -362,6 +362,7 @@ double VnlPlus::linearInterpolate(int idx1, int idx2, double y1, double y2, int 
     return y1 + dy/(idx2 - idx1) * (idx3 - idx1);
 }
 
+/*
 // http://www.visiondummy.com/2014/04/draw-error-ellipse-representing-covariance-matrix/
 bool VnlPlus::cov2ellipse(const vnl_matrix_fixed<double, 2, 2> & cov, const vgl_point_2d<double> & center,
                           vgl_ellipse_2d<double> & ellipse, double chiSquareVal)
@@ -385,6 +386,7 @@ bool VnlPlus::cov2ellipse(const vnl_matrix_fixed<double, 2, 2> & cov, const vgl_
    // vcl_cout<<"maximum eigen vector is "<<eigenVectors[0]<<vcl_endl;
     return true;     
 }
+*/
 
 void VnlPlus::print_part(const vnl_matrix<double> & m, int r, int c, char *name)
 {

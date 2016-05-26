@@ -1,23 +1,18 @@
 //
-//  vl_short_sift_feature.cpp
-//  Relocalization
+//  vl_sift_feature_short.cpp
+//  RGB_RF
 //
-//  Created by jimmy on 5/6/16.
-//  Copyright (c) 2016 Nowhere Planet. All rights reserved.
+//  Created by jimmy on 2016-05-10.
+//  Copyright © 2016 jimmy. All rights reserved.
 //
 
-#include "vl_short_sift_feature.h"
+#include "vl_sift_feature_short.hpp"
 #include <vil/vil_convert.h>
-#include <bapl/bapl_keypoint_extractor.h>
-#include <bapl/bapl_keypoint_sptr.h>
-#include <bapl/bapl_dense_sift_sptr.h>
-#include <bapl/bapl_lowe_keypoint_sptr.h>
-#include <bapl/bapl_bbf_tree.h>
-#include <time.h>
 
-bool VlShortSIFTFeature::vl_keypoint_extractor_short(const vil_image_view<vxl_byte> & image,
-                                                     const vl_feat_sift_parameter &param,
-                                                     vcl_vector<bapl_keypoint_sptr> & keypoints, bool verbose)
+bool VlSIFTFeatureShort::vl_keypoint_extractor(const vil_image_view<vxl_byte> & image,
+                                               const vl_feat_sift_parameter & param,
+                                               std::vector<std::shared_ptr<lowe_keypoint_32d> > & keypoints,
+                                               bool verbose)
 {
     vil_image_view<vxl_byte> grey;
     if (image.nplanes() == 1) {
@@ -35,7 +30,7 @@ bool VlShortSIFTFeature::vl_keypoint_extractor_short(const vil_image_view<vxl_by
     int o_min = 0;   //first octave index
     
     // create a filter to process the image
-    VlSiftFilt *filt = vl_sift_new (width, height, noctaves, nlevels, o_min) ;
+    VlSiftFilt *filt = vl_sift_new_short (width, height, noctaves, nlevels, o_min) ;
     
     double   edge_thresh  = param.edge_thresh;
     double   peak_thresh  = param.peak_thresh;
@@ -63,11 +58,10 @@ bool VlShortSIFTFeature::vl_keypoint_extractor_short(const vil_image_view<vxl_by
     
     bool isFirst = true ;
     vl_bool err = VL_ERR_OK;
-
-    double tt = clock();
+    
     int nangles = 0;
-    double angles[4];
-    vnl_vector_fixed<float, 128>  descriptor(0.0);
+    double angles[4] = {0.0};
+    vnl_vector_fixed<float, 32>  descriptor(0.0f);
     while (1) {
         if (isFirst) {
             isFirst = false;
@@ -91,16 +85,16 @@ bool VlShortSIFTFeature::vl_keypoint_extractor_short(const vil_image_view<vxl_by
             // Depending on the symmetry of the keypoint appearance, determining the orientation can be ambiguous. SIFT detectors have up to four possible orientations
             nangles = vl_sift_calc_keypoint_orientations(filt, angles, curKey) ;
             
-            for (int q = 0 ; q < nangles; q++) {
-                vl_sift_calc_keypoint_descriptor(filt, &descriptor[0], curKey, angles[q]);
+            for (int q = 0 ; q < nangles ; q++) {
+                vl_sift_calc_keypoint_descriptor_short(filt, &descriptor[0], curKey, angles[q]);
                 
-                bapl_lowe_keypoint *pKeypoint = new bapl_lowe_keypoint();
+                lowe_keypoint_32d *pKeypoint = new lowe_keypoint_32d();
                 double x = curKey->x;
                 double y = curKey->y;
                 double s = curKey->sigma;
                 double o = angles[q];
-                vnl_vector_fixed<double, 128> des;
-                for (int j = 0; j<32; j++) {     // only first 32 dimension is used
+                vnl_vector_fixed<double, 32> des;
+                for (int j = 0; j<32; j++) {
                     des[j] = descriptor[j];
                 }
                 
@@ -110,21 +104,16 @@ bool VlShortSIFTFeature::vl_keypoint_extractor_short(const vil_image_view<vxl_by
                 pKeypoint->set_orientation(o);
                 pKeypoint->set_descriptor(des);
                 
-                keypoints.push_back(bapl_keypoint_sptr(pKeypoint));
+                keypoints.push_back(std::shared_ptr<lowe_keypoint_32d>(pKeypoint));
             }
         }
     }
-    printf("descriptor cost time %lf.\n", (clock() - tt)/CLOCKS_PER_SEC);
     
     vl_sift_delete(filt);
     delete fdata;
     
     if(verbose){
         vcl_cout<<"Found "<<keypoints.size()<<" keypoints."<<vcl_endl;
-        vcl_cout<<"Only first 32 dimension is used. "<<vcl_endl;
-    }
-    
+    }    
     return true;
 }
-
-
