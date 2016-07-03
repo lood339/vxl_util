@@ -11,7 +11,7 @@
 #include <vnl/vnl_inverse.h>
 #include <vnl/vnl_math.h>
 #include <vcl_iostream.h>
-#include "vxl_plus.h"
+//#include "vxl_plus.h"
 
 /*
  **************************   vnl_multiple_gaussian     ************************

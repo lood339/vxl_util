@@ -12,7 +12,7 @@
 #include <vil/vil_convert.h>
 #include <vl/sift.h>
 #include <vcl_vector.h>
-#include <vgl/vgl_transform_2d.h>
+//#include <vgl/vgl_transform_2d.h>
 #include <bapl/bapl_lowe_keypoint.h>
 #include <vil/vil_crop.h>
 
@@ -27,7 +27,10 @@
 
 
 
-bool VilVlFeatSIFTFeture::vl_keypoint_extractor( const vil_image_view<vxl_byte> & image, const vl_feat_sift_parameter &param, vcl_vector<bapl_keypoint_sptr> & keypoints, bool verbose)
+bool VilVlFeatSIFTFeture::vl_keypoint_extractor( const vil_image_view<vxl_byte> & image,
+                                                const vl_feat_sift_parameter &param,
+                                                vcl_vector<bapl_keypoint_sptr> & keypoints,
+                                                bool verbose)
 {
     vil_image_view<vxl_byte> grey;
     if (image.nplanes() == 1) {
@@ -182,17 +185,15 @@ bool VilVlFeatSIFTFeture::vl_keypoint_custom_extractor(const vil_image_view<vxl_
         }
     }
     
-    
     //                                             Process each octave
-    
     bool isFirst = true ;
     vl_bool err = VL_ERR_OK;
     
     int nangles = 0;
-    double angles[4];
+    double angles[4] = {0.0};
     vnl_vector_fixed<float, 128>  descriptor;
     
-    double *pLocations = new double[locatioins.size()];
+    double *pLocations = new double[locatioins.size() * 2];
     for (int i =0; i<locatioins.size(); i++) {
         pLocations[i * 2] = locatioins[i].x();
         pLocations[i * 2 + 1] = locatioins[i].y();

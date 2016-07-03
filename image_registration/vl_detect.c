@@ -89,6 +89,8 @@ void vl_sift_detect_custom(VlSiftFilt * f, double *locations, int nLoc)
         int y = f-> keys [i] .iy ;
         int s = f-> keys [i]. is ;
         
+        
+        
         double Dx=0,Dy=0,Ds=0,Dxx=0,Dyy=0,Dss=0,Dxy=0,Dxs=0,Dys=0 ;
         double A [3*3], b [3] ;
         
@@ -216,6 +218,7 @@ void vl_sift_detect_custom(VlSiftFilt * f, double *locations, int nLoc)
             double yn = y + b[1] ;
             double sn = s + b[2] ;
             
+            /*
             vl_bool good =
             vl_abs_d (val)  > tp                  &&
             score           < (te+1)*(te+1)/te    &&
@@ -229,8 +232,17 @@ void vl_sift_detect_custom(VlSiftFilt * f, double *locations, int nLoc)
             yn              <= h - 1              &&
             sn              >= s_min              &&
             sn              <= s_max ;
+             */
             
-            //if (good) // do not check the quality
+            vl_bool good =
+            xn              >= 0                  &&
+            xn              <= w - 1              &&
+            yn              >= 0                  &&
+            yn              <= h - 1              &&
+            sn              >= s_min              &&
+            sn              <= s_max ;
+            
+            if (good) // do not check the quality
             {
                 k-> o     = f->o_cur ;
                 k-> ix    = x ;

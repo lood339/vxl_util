@@ -86,9 +86,11 @@ public:
                                       vcl_vector<bapl_keypoint_sptr> & keypoints, bool verbose = true);
     
     // extract SIFT at locations
-    static bool vl_keypoint_custom_extractor(const vil_image_view<vxl_byte> & image, const vl_feat_sift_parameter &parameter,
+    static bool vl_keypoint_custom_extractor(const vil_image_view<vxl_byte> & image,
+                                             const vl_feat_sift_parameter &parameter,
                                              const vcl_vector<vgl_point_2d<double> > & locatioins,
-                                             vcl_vector<bapl_keypoint_sptr> & keypoints, bool verbose = true);
+                                             vcl_vector<bapl_keypoint_sptr> & keypoints,
+                                             bool verbose = true);
     
     
     

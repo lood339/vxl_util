@@ -53,9 +53,7 @@ bool VlSIFTFeatureShort::vl_keypoint_extractor(const vil_image_view<vxl_byte> & 
         }
     }
     
-    
-    //                                             Process each octave
-    
+    //  Process each octave    
     bool isFirst = true ;
     vl_bool err = VL_ERR_OK;
     

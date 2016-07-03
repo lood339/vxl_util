@@ -30,7 +30,10 @@ public:
     
     static void getSIFT(const vil_image_view<vxl_byte> &image, vcl_vector<bapl_keypoint_sptr> & features);
     
+    
     static void getSIFTLocations(const vcl_vector<bapl_keypoint_sptr> & keypoints, vcl_vector<vgl_point_2d<double> > & pts);
+    static void getSIFTDesctription(const vcl_vector<bapl_keypoint_sptr> & keypoints, vcl_vector<vnl_vector_fixed<double, 128> > & descriptions);
+    
     static void getMatchingLocations(const vcl_vector<bapl_key_match> & matches, vcl_vector<vgl_point_2d<double> > & pts1, vcl_vector<vgl_point_2d<double> > & pts2);
     
     static vcl_vector<vgl_point_2d<double> > getSIFTLocations(const vcl_vector<bapl_keypoint_sptr> & keypoints);
@@ -49,9 +52,7 @@ public:
     
     // image SIFT pair
     static bool writeImageAndSIFT(const char *file, const char *imageName, const char *siftFile);
-    static bool readImageAndSIFT(const char *file, vcl_string & imageName, vcl_string & siftFile);
-    
-    
+    static bool readImageAndSIFT(const char *file, vcl_string & imageName, vcl_string & siftFile);    
     
 };
 
