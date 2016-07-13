@@ -120,6 +120,16 @@ void VilBaplSIFT::getSIFTLocations(const vcl_vector<bapl_keypoint_sptr> & keypoi
     }
 }
 
+void VilBaplSIFT::getSIFTDesctription(const vcl_vector<bapl_keypoint_sptr> & keypoints, vcl_vector<vnl_vector_fixed<double, 128> > & descriptions)
+{
+    for (int i = 0; i<keypoints.size(); i++) {
+        bapl_lowe_keypoint_sptr sift = dynamic_cast<bapl_lowe_keypoint*>(keypoints[i].as_pointer());
+        // vnl_vector_fixed<double,128> feat = sift->descriptor();
+        descriptions.push_back(sift->descriptor());
+    }
+    
+}
+
 void VilBaplSIFT::getMatchingLocations(const vcl_vector<bapl_key_match> & matches, vcl_vector<vgl_point_2d<double> > & pts1, vcl_vector<vgl_point_2d<double> > & pts2)
 {
     for (int i = 0; i<matches.size(); i++)

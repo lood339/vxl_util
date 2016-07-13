@@ -10,6 +10,8 @@
 #include <vnl/algo/vnl_determinant.h>
 #include <vnl/vnl_sparse_matrix.h>
 #include <vnl/algo/vnl_sparse_lu.h>
+#include <vnl/algo/vnl_svd.h>
+#include <vnl/algo/vnl_matrix_inverse.h>
 
 bool VxlLeastSquare::solver(vcl_vector<vcl_map<int, double> > & leftVec, vcl_vector<double> & rightVec,
                             bool overConstraint, int var_Num, double *result)
@@ -49,3 +51,32 @@ bool VxlLeastSquare::solver(vcl_vector<vcl_map<int, double> > & leftVec, vcl_vec
     }
     return true;
 }
+
+bool VxlLeastSquare::solver(const vnl_matrix<double> & A, const vnl_vector<double> & b,
+                            vnl_vector<double> & x)
+{
+    assert(A.rows() == b.size());
+    vnl_svd<double> svd(A);
+    x = svd.solve(b);
+    return true;
+}
+
+// (X^TX + lambda I)^{-1} X^T b
+bool VxlLeastSquare::solver(const vnl_matrix<double> & A, const vnl_vector<double> & b,
+                            const double lambda, vnl_vector<double> & x)
+{
+    assert(lambda >= 0);
+    assert(A.rows() == b.size());
+    
+    int cols = A.cols();
+    vnl_matrix<double> I(cols, cols);
+    I.set_identity();
+    
+    vnl_matrix<double> inv = vnl_matrix_inverse<double>(A.transpose() * A + lambda * I);
+    x = inv * A.transpose() * b;
+    
+    return true;
+}
+
+
+

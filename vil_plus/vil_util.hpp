@@ -16,8 +16,7 @@ class VilUtil
 public:
     static void vil_save(const vil_image_view<vxl_byte> & image, char const* filename, bool print_logo = true);
     
-    static vil_image_view<vxl_byte> gray_2_rgb(const vil_image_view<vxl_byte> & image);
-    
+    static vil_image_view<vxl_byte> gray_2_rgb(const vil_image_view<vxl_byte> & image);    
 };
 
 
