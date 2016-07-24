@@ -12,19 +12,19 @@
 #include <vil/vil_load.h>
 #include <vil/vil_save.h>
 #include <vil/vil_convert.h>
-#include <vil/vil_quantize.h>
+
 #include <vnl/vnl_least_squares_function.h>
 #include <vnl/algo/vnl_levenberg_marquardt.h>
 #include <vgl/vgl_distance.h>
-#include <vgl/vgl_intersection+.h>
+
 #include <vsl/vsl_binary_io.h>
 #include <vgl/io/vgl_io_point_2d.h>
-#include <vpgl/algo/vpgl_calibration_matrix_compute.h>
+
 #include <vpgl/algo/vpgl_camera_compute.h>
-#include <vicl/vicl_line_segment.h>
+
 #include <vil/algo/vil_sobel_3x3.h>
-#include <vil/vil_quantize.h>
-#include <vil/vil_interp.h>
+
+
 #include <vil/vil_warp.h>
 #include <vil/vil_copy.h>
 #include <vnl/vnl_math.h>
@@ -36,19 +36,22 @@
 #include <vnl/io/vnl_io_matrix.h>
 #include <vnl/vnl_matlab_read.h>
 #include <vnl/vnl_matlab_filewrite.h>
-#include <vul/vul_file_list.h>
 #include <vil/vil_crop.h>
-#include <vil/vil_correlation.h>
-#include <vgl/vgl_transform_2d.h>
+
 #include <vnl/algo/vnl_matrix_inverse.h>
-#include <vicl/vicl_ellipse.h>
-#include <vicl/vicl_colours.h>
+
 #include <vnl/algo/vnl_determinant.h>
 #include <vil/algo/vil_colour_space.h>
 #include <vcl_stack.h>
 #include <vil/algo/vil_gauss_filter.h>
 #include <vil/algo/vil_colour_space.h>
 #include <vcl_algorithm.h>
+#include <vil/vil_image_view.h>
+#include <vil/vil_bilin_interp.h>
+#include <vgl/vgl_box_2d.h>
+#include <vgl/vgl_intersection.h>
+
+
 
 void VilPlus::vil_load(const char *file_name, unsigned int nChannels, vil_image_view<double> &outImage)
 {
@@ -64,26 +67,7 @@ void VilPlus::vil_load(const char *file_name, unsigned int nChannels, vil_image_
     }
 }
 
-void VilPlus::vil_save(const vil_image_view<double> & image, char const* filename, bool print_logo)
-{
-    bool isSaveOk = ::vil_save(vil_quantize::quantize<vxl_byte>(image, true), filename);
-    if (print_logo && isSaveOk) {
-        vcl_cout<<"save to: "<<filename<<vcl_endl;
-    }
-}
 
-void VilPlus::vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo)
-{
-    vil_image_view<double> dImage(image.ni(), image.nj(), image.nplanes());
-    for (int i = 0; i<image.ni(); i++) {
-        for (int j = 0; j<image.nj(); j++) {
-            for (int k = 0; k<image.nplanes(); k++) {
-                dImage(i, j, k) = image(i, j, k);
-            }
-        }
-    }
-    VilPlus::vil_save(dImage, filename, print_logo);
-}
 
 void VilPlus::vil_save(const vil_image_view<vxl_byte> & image, char const* filename, bool print_logo)
 {
@@ -163,40 +147,6 @@ vil_image_view<vxl_byte> VilPlus::gray2Rgb(const vil_image_view<vxl_byte> & imag
     return rgbImage;
 }
 
-void VilPlus::vil_magnitude(const vil_image_view<double> &image, vil_image_view<double> &magnitude)
-{
-    //Ix, Iy
-    vil_image_view<double> Ix, Iy;
-    vil_sobel_3x3(image, Ix, Iy);
-    
-    //magnitude
-    magnitude = vil_image_view<double>(image.ni(), image.nj(), 1);
-    for (int y = 0; y<magnitude.nj(); y++) {
-        for (int x = 0; x<magnitude.ni(); x++) {
-            double dx = Ix(x, y, 0);
-            double dy = Iy(x, y, 0);
-            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
-        }
-    }
-}
-
-void VilPlus::vil_magnitude(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude)
-{
-    // rgb to gray
-    vil_image_view<vxl_byte> gray;
-    if (image.nplanes() == 3) {
-        gray = VilPlus::vil_to_gray(image);
-    }
-    else
-    {
-        gray = image;
-    }
-    // gray to double
-    vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
-    
-    // double to gradient
-    VilPlus::vil_magnitude(dImage, magnitude);
-}
 
 void VilPlus::vil_byteToDouble(const vil_image_view<vxl_byte> & image, vil_image_view<double> & doubleImage)
 {
@@ -218,79 +168,6 @@ void VilPlus::vil_byteToDouble(const vil_image_view<vxl_byte> & image, vil_image
     }
 }
 
-void VilPlus::vil_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
-                           vil_image_view<double> & Ix, vil_image_view<double> & Iy, bool smooth)
-{
-    const int w = image.ni();
-    const int h = image.nj();
-    
-    // rgb to gray
-    vil_image_view<vxl_byte> gray;
-    if (image.nplanes() == 3) {
-        gray = VilPlus::vil_to_gray(image);
-    }
-    else
-    {
-        gray = image;
-    }
-    // gray to double
-    vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
-    
-    if (smooth) {
-        vil_image_view<double> smoothedImage = vil_image_view<double>(w, h, 1);
-        vil_gauss_filter_5tap_params params(5);
-        vil_gauss_filter_5tap(dImage, smoothedImage, params);
-        dImage = smoothedImage;
-    }
-    
-    vil_sobel_3x3(dImage, Ix, Iy);
-    
-    //magnitude
-    magnitude = vil_image_view<double>(w, h, 1);
-    for (int y = 0; y<magnitude.nj(); y++) {
-        for (int x = 0; x<magnitude.ni(); x++) {
-            double dx = Ix(x, y, 0);
-            double dy = Iy(x, y, 0);
-            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
-        }
-    }
-}
-
-void VilPlus::vil_smooth_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
-                                  vil_image_view<double> & Ix, vil_image_view<double> & Iy)
-{
-    const int w = image.ni();
-    const int h = image.nj();
-    
-    // rgb to gray
-    vil_image_view<vxl_byte> gray;
-    if (image.nplanes() == 3) {
-        gray = VilPlus::vil_to_gray(image);
-    }
-    else
-    {
-        gray = image;
-    }
-    // gray to double
-    vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
-    
-    vil_image_view<double> smoothedImage = vil_image_view<double>(w, h, 1);
-    vil_gauss_filter_5tap_params params(5);
-    vil_gauss_filter_5tap(dImage, smoothedImage, params);
-    
-    vil_sobel_3x3(smoothedImage, Ix, Iy);
-    
-    //magnitude
-    magnitude = vil_image_view<double>(w, h, 1);
-    for (int y = 0; y<magnitude.nj(); y++) {
-        for (int x = 0; x<magnitude.ni(); x++) {
-            double dx = Ix(x, y, 0);
-            double dy = Iy(x, y, 0);
-            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
-        }
-    }
-    
-}
 
 
 double VilPlus::vil_ssd(const vil_image_view<vxl_byte> & image1, const vil_image_view<vxl_byte> & image2)
@@ -310,25 +187,6 @@ double VilPlus::vil_ssd(const vil_image_view<vxl_byte> & image1, const vil_image
     return ssd;
 }
 
-double VilPlus::vil_gradient_ssd(const vil_image_view<vxl_byte> &image1, const vil_image_view<vxl_byte> & image2)
-{
-    assert(image1.ni() == image2.ni());
-    assert(image1.nj() == image2.nj());
-    
-    vil_image_view<double> mag1;
-    vil_image_view<double> mag2;
-    VilPlus::vil_magnitude(image1, mag1);
-    VilPlus::vil_magnitude(image2, mag2);
-    
-    double ssd = 0;
-    for (int j = 0; j<image1.nj(); j++) {
-        for (int i = 0; i<image1.ni(); i++) {
-            double dif = image1(i, j, 0) - image2(i, j, 0);
-            ssd += dif * dif;
-        }
-    }
-    return ssd;
-}
 
 vil_image_view<vxl_byte> VilPlus::vil_to_gray(const vil_image_view<vxl_byte> & image)
 {
@@ -435,6 +293,12 @@ bool VilPlus::homography_warp_fill(const vil_image_view<vxl_byte>& srcImage,
     return true;
 }
 
+static void vicl_overlay_line_segment( vil_image_view< vxl_byte >& image, vgl_line_segment_2d< double > const& segment,
+                                      vcl_vector< vxl_byte > const& colour, const unsigned int thickness = 1)
+{
+    printf("Warning: vicl_overlay_line_segment do no thing. Draw lines are not supported.\n");
+}
+
 void VilPlus::draw_cross(vil_image_view<vxl_byte> &image, const vcl_vector< vgl_point_2d<double>> &pts, int crossWidth, const vcl_vector< vxl_byte >& colour, int lineWidth)
 {
     assert(image.nplanes() == 3);
@@ -503,23 +367,7 @@ void VilPlus::draw_edge(vil_image_view<vxl_byte> &image,
                         const vcl_vector<vxl_byte> & colour,
                         int lineWidth)
 {
-    
-    //  double dx = endPt.x() - startPt.x();
-    //  double dy = endPt.y() - startPt.y();
-    
-    //   vnl_vector<double> norm = vnl_vector<double>(-dy, dx).normalize();
-    
-    // line
     vicl_overlay_line_segment(image, vgl_line_segment_2d<double>(startPt, endPt), colour, lineWidth);
-    
-    /*
-     int len = 10;
-     vgl_point_2d<double> dp(norm[0] * len, norm[1] * len);
-     vgl_point_2d<double> p1(startPt.x() + dp.x(), startPt.y() + dp.y());
-     vgl_point_2d<double> p2(startPt.x() - dp.x(), startPt.y() - dp.y());
-     */
-    
-    //  vicl_overlay_line_segment(image, vgl_line_segment_2d<double>(p1, p2), colors[normColorIdx], lineWidth*2);
 }
 
 void VilPlus::draw_segment(vil_image_view<vxl_byte> &image,
@@ -672,30 +520,8 @@ void VilPlus::draw_lines(vil_image_view<vxl_byte> & image, const vcl_vector< vgl
     }
 }
 
-void VilPlus::draw_circle(vil_image_view<vxl_byte> & image, const vcl_vector< vgl_point_2d<double> > & pts,
-                          int radius, const vcl_vector<vxl_byte> & colour)
-{
-    for (int i = 0; i<pts.size(); i++) {
-        vgl_ellipse_2d<double> ellipse(pts[i], radius, radius);
-        vicl_overlay_ellipse(image, ellipse, colour);
-    }
-}
 
-void VilPlus::draw_velocity(vil_image_view<vxl_byte> & image, const vcl_vector< vgl_point_2d<double> > & pts,
-                            const vcl_vector< vnl_vector_fixed<double, 2> > & vlt,
-                            double scale, const vcl_vector<vxl_byte> & colour)
-{
-    assert(pts.size() == vlt.size());
-    
-    VilPlus::draw_circle(image, pts, 2, colour);
-    for (int i = 0; i<pts.size(); i++) {
-        vgl_point_2d<double> p1 = pts[i];
-        double u = vlt[i][0] * scale;
-        double v = vlt[i][1] * scale;
-        vgl_point_2d<double> p2(p1.x() + u, p1.y() + v);
-        vicl_overlay_line_segment(image, vgl_line_segment_2d<double>(p1, p2), colour, 2);
-    }
-}
+
 
 void VilPlus::draw_match(const vil_image_view<vxl_byte> &image1, const vil_image_view<vxl_byte> &image2,
                          const vcl_vector< vgl_point_2d<double> > & pts1,
@@ -937,11 +763,17 @@ void VilPlus::draw_projected_line(const vpgl_perspective_camera<double> &camera,
     
     //   vcl_cout<<"q1 "<<q1<<vcl_endl;
     //   vcl_cout<<"q2 "<<q2<<vcl_endl<<vcl_endl;
+    vcl_vector<vxl_byte> red(3, 0);
+    vcl_vector<vxl_byte> green(3, 0);
+    vcl_vector<vxl_byte> blue(3, 0);
+    red[0]   = 255;
+    green[1] = 255;
+    blue[2]  = 255;
     
     vcl_vector<vcl_vector< vxl_byte >> colors;
-    colors.push_back(vicl_colour::red);
-    colors.push_back(vicl_colour::green);
-    colors.push_back(vicl_colour::blue);
+    colors.push_back(red);
+    colors.push_back(green);
+    colors.push_back(blue);
     
     vicl_overlay_line_segment(image, vgl_line_segment_2d<double>(q1, q2), colors[colorIdx], lineWidth);
 }
@@ -1028,10 +860,16 @@ void VilPlus::draw_projected_circle(const vpgl_perspective_camera<double> & came
     }
     
     //project 3d line segment to image space
+    vcl_vector<vxl_byte> red(3, 0);
+    vcl_vector<vxl_byte> green(3, 0);
+    vcl_vector<vxl_byte> blue(3, 0);
+    red[0]   = 255;
+    green[1] = 255;
+    blue[2]  = 255;
     vcl_vector<vcl_vector< vxl_byte >> colors;
-    colors.push_back(vicl_colour::red);
-    colors.push_back(vicl_colour::green);
-    colors.push_back(vicl_colour::blue);
+    colors.push_back(red);
+    colors.push_back(green);
+    colors.push_back(blue);
     
     assert(pts.size() == segNum + 1);
     for (int i = 0; i<segNum; i++) {
@@ -1143,43 +981,23 @@ void VilPlus::draw_ellipse_majorminor_axis(vil_image_view<vxl_byte> & image, con
 //	cvShowImage("major minor axis", image);
 }
 
-void VilPlus::draw_ellipse(vil_image_view<vxl_byte> & image, const vgl_ellipse_2d<double> & ellipse, const vcl_vector<vxl_byte> & colour)
-{
-    assert(image.nplanes() == 3);
-    assert(colour.size() == 3);
-        
-    vgl_line_segment_2d<double> majDia = ellipse.major_diameter();
-    vgl_line_segment_2d<double> minDia = ellipse.minor_diameter();
- //   VilPlus::draw_edge(image, majDia.point1(), majDia.point2(), VilPlus::green());
- //   VilPlus::draw_edge(image, minDia.point1(), minDia.point2(), VilPlus::green());
-    vicl_overlay_ellipse(image, ellipse, colour, 2);
-}
 
-void VilPlus::draw_covariance(vil_image_view<vxl_byte> & image,
-                              const vnl_matrix_fixed<double, 2, 2> & cov,
-                              const vgl_point_2d<double> & loc,
-                              double orientation, const vcl_vector<vxl_byte> & colour,
-                              double scale)
-{
-    // vgl_ellipse_2d( vgl_point_2d< T > centre = vgl_point_2d< T >( 0, 0 ), T majorRadius = 2, T minorRadius = 1, T orientation = 0 );
-    double major = cov[0][0] * scale;
-    double minor = cov[1][1] * scale;
-    if (major < minor) {
-        vcl_swap(major, minor);
-        orientation += vnl_math::pi/2.0;
-    }
-    vgl_ellipse_2d<double> ellipse(loc, major, minor, orientation);
-    VilPlus::draw_ellipse(image, ellipse, colour);
-}
+
 
 void VilPlus::draw_rectangle(vil_image_view<vxl_byte> & image, const vgl_point_2d<double> & topLeft, const vgl_point_2d<double> & bottomRight, int colorIdx)
 {
     assert(colorIdx >= 0 && colorIdx <= 2);
     
+    vcl_vector<vxl_byte> red(3, 0);
+    vcl_vector<vxl_byte> green(3, 0);
+    vcl_vector<vxl_byte> blue(3, 0);
+    red[0]   = 255;
+    green[1] = 255;
+    blue[2]  = 255;
     vcl_vector<vcl_vector< vxl_byte >> colors;
-    colors.push_back(vicl_colour::red);
-    colors.push_back(vicl_colour::green);
-    colors.push_back(vicl_colour::blue);
+    colors.push_back(red);
+    colors.push_back(green);
+    colors.push_back(blue);
     
     vgl_point_2d<double> p1 = topLeft;
     vgl_point_2d<double> p2 = vgl_point_2d<double>(bottomRight.x(), topLeft.y());
@@ -1237,6 +1055,7 @@ void VilPlus::project_cylinder_rectangle(const vpgl_perspective_camera<double> &
     bottomRight = vgl_point_2d<double>(x_max, y_max);
 }
 
+/*
 void VilPlus::visualize_gradient_direction_hsv(vil_image_view<vxl_byte> &image, vil_image_view<vxl_byte> &gradient_direction)
 {
     assert(image.nplanes() == 3);
@@ -1282,7 +1101,7 @@ void VilPlus::visualize_gradient_direction_hsv(vil_image_view<vxl_byte> &image, 
     
     VilPlus::vil_convert_hsv_to_rgb(hsv, gradient_direction);
 }
-
+*/
 // http://www.cs.rit.edu/~ncs/color/t_convert.html
 void VilPlus::vil_convert_hsv_to_rgb(const vil_image_view<double> &src, vil_image_view<vxl_byte> &dest)
 {
@@ -1616,6 +1435,7 @@ void VilPlus::draw_image_grid(const vcl_vector<vil_image_view<vxl_byte> > & imag
     }
 }
 
+/*
 void VilPlus::vil_cross_correlation(const vil_image_view<vxl_byte> & image1, const vil_image_view<vxl_byte> & image2,
                                     const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2,
                                     int window_size,
@@ -1654,7 +1474,9 @@ void VilPlus::vil_cross_correlation(const vil_image_view<vxl_byte> & image1, con
     }
     assert(nccs.size() == pts1.size());
 }
+ */
 
+/*
 bool VilPlus::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vil_image_view<vxl_byte> & destImage,
                                         const vgl_point_2d<double> & initP, int patchSize, int searchSize, vgl_point_2d<double> & finalP)
 {
@@ -1698,6 +1520,9 @@ bool VilPlus::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelI
     finalP.set(x_center + x_offset  ,  y_center + y_offset);
     return finalP.x() >= 0 && finalP.x() < destWidth && finalP.y() >= 0 && finalP.y() < destHeight;
 }
+ */
+
+/*
 
 bool VilPlus::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vgl_point_2d<double> & kernelP,
                                         const vil_image_view<vxl_byte> & destImage, const vgl_point_2d<double> & initP,
@@ -1765,29 +1590,11 @@ bool VilPlus::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelI
     if (!isInside) {
         printf("out of dest image %f %f\n", finalP.x(), finalP.y());
     }
-    //  printf("ncc max is %f\n", val_max);
-    //  printf("matched position is %f %f\n\n", finalP.x(), finalP.y());
-    
-    //test
-    if(0)
-    {
-        int w = ncc.ni();
-        int h = ncc.nj();
-        vil_image_view<vxl_byte> showImage(w, h, 1);
-        for (int i = 0; i<ncc.ni(); i++) {
-            for (int j = 0; j<ncc.nj(); j++) {
-                double val = fabs(ncc(i, j, 0)) * 255;
-                showImage(i, j, 0) = val;
-            }
-        }
-        
-        char buf[1024] = {NULL};
-        sprintf(buf, "%d.jpg", rand()%1024);
-        VilPlus::vil_save(showImage, buf);
-    }
     return isInside;
 }
+ */
 
+/*
 bool VilPlus::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vcl_vector<vgl_point_2d<double> > & kernelPts,
                                         const vil_image_view<vxl_byte> & destImage, const vcl_vector<vgl_point_2d<double> > & initPts,
                                         int patchSize, int searchSize, vcl_vector<vgl_point_2d<double> > & finalP)
@@ -1871,6 +1678,7 @@ bool VilPlus::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelI
     
     return true;
 }
+ */
 
 //Connected-component labeling
 int VilPlus::connect_component_label(const vil_image_view<vxl_byte> & biImage, unsigned int minSetSize,

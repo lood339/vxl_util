@@ -1,0 +1,217 @@
+//
+//  vil_plus_extra.cpp
+//  GenerateFeature
+//
+//  Created by jimmy on 2016-07-22.
+//  Copyright (c) 2016 Nowhere Planet. All rights reserved.
+//
+
+//#include "vil_plus_extra.h"
+
+
+void VilPlusExtra::draw_ellipse(vil_image_view<vxl_byte> & image, const vgl_ellipse_2d<double> & ellipse, const vcl_vector<vxl_byte> & colour)
+{
+    assert(image.nplanes() == 3);
+    assert(colour.size() == 3);
+    
+    vgl_line_segment_2d<double> majDia = ellipse.major_diameter();
+    vgl_line_segment_2d<double> minDia = ellipse.minor_diameter();    
+    vicl_overlay_ellipse(image, ellipse, colour, 2);
+}
+
+void VilPlusExtra::draw_covariance(vil_image_view<vxl_byte> & image,
+                              const vnl_matrix_fixed<double, 2, 2> & cov,
+                              const vgl_point_2d<double> & loc,
+                              double orientation, const vcl_vector<vxl_byte> & colour,
+                              double scale)
+{
+    // vgl_ellipse_2d( vgl_point_2d< T > centre = vgl_point_2d< T >( 0, 0 ), T majorRadius = 2, T minorRadius = 1, T orientation = 0 );
+    double major = cov[0][0] * scale;
+    double minor = cov[1][1] * scale;
+    if (major < minor) {
+        vcl_swap(major, minor);
+        orientation += vnl_math::pi/2.0;
+    }
+    vgl_ellipse_2d<double> ellipse(loc, major, minor, orientation);
+    VilPlusExtra::draw_ellipse(image, ellipse, colour);
+}
+
+void VilPlusExtra::vil_save(const vil_image_view<double> & image, char const* filename, bool print_logo)
+{
+    bool isSaveOk = ::vil_save(vil_quantize::quantize<vxl_byte>(image, true), filename);
+    if (print_logo && isSaveOk) {
+        vcl_cout<<"save to: "<<filename<<vcl_endl;
+    }
+}
+
+void VilPlusExtra::vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo)
+{
+    vil_image_view<double> dImage(image.ni(), image.nj(), image.nplanes());
+    for (int i = 0; i<image.ni(); i++) {
+        for (int j = 0; j<image.nj(); j++) {
+            for (int k = 0; k<image.nplanes(); k++) {
+                dImage(i, j, k) = image(i, j, k);
+            }
+        }
+    }
+    VilPlusExtra::vil_save(dImage, filename, print_logo);
+}
+
+void VilPlusExtra::vil_magnitude(const vil_image_view<double> &image, vil_image_view<double> &magnitude)
+{
+    //Ix, Iy
+    vil_image_view<double> Ix, Iy;
+    vil_sobel_3x3(image, Ix, Iy);
+    
+    //magnitude
+    magnitude = vil_image_view<double>(image.ni(), image.nj(), 1);
+    for (int y = 0; y<magnitude.nj(); y++) {
+        for (int x = 0; x<magnitude.ni(); x++) {
+            double dx = Ix(x, y, 0);
+            double dy = Iy(x, y, 0);
+            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
+        }
+    }
+}
+
+void VilPlusExtra::vil_magnitude(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude)
+{
+    // rgb to gray
+    vil_image_view<vxl_byte> gray;
+    if (image.nplanes() == 3) {
+        gray = VilPlus::vil_to_gray(image);
+    }
+    else
+    {
+        gray = image;
+    }
+    // gray to double
+    vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
+    
+    // double to gradient
+    VilPlus::vil_magnitude(dImage, magnitude);
+}
+
+void VilPlusExtra::vil_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
+                           vil_image_view<double> & Ix, vil_image_view<double> & Iy, bool smooth)
+{
+    const int w = image.ni();
+    const int h = image.nj();
+    
+    // rgb to gray
+    vil_image_view<vxl_byte> gray;
+    if (image.nplanes() == 3) {
+        gray = VilPlus::vil_to_gray(image);
+    }
+    else
+    {
+        gray = image;
+    }
+    // gray to double
+    vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
+    
+    if (smooth) {
+        vil_image_view<double> smoothedImage = vil_image_view<double>(w, h, 1);
+        vil_gauss_filter_5tap_params params(5);
+        vil_gauss_filter_5tap(dImage, smoothedImage, params);
+        dImage = smoothedImage;
+    }
+    
+    vil_sobel_3x3(dImage, Ix, Iy);
+    
+    //magnitude
+    magnitude = vil_image_view<double>(w, h, 1);
+    for (int y = 0; y<magnitude.nj(); y++) {
+        for (int x = 0; x<magnitude.ni(); x++) {
+            double dx = Ix(x, y, 0);
+            double dy = Iy(x, y, 0);
+            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
+        }
+    }
+}
+
+void VilPlusExtra::vil_smooth_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
+                                  vil_image_view<double> & Ix, vil_image_view<double> & Iy)
+{
+    const int w = image.ni();
+    const int h = image.nj();
+    
+    // rgb to gray
+    vil_image_view<vxl_byte> gray;
+    if (image.nplanes() == 3) {
+        gray = VilPlus::vil_to_gray(image);
+    }
+    else
+    {
+        gray = image;
+    }
+    // gray to double
+    vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
+    
+    vil_image_view<double> smoothedImage = vil_image_view<double>(w, h, 1);
+    vil_gauss_filter_5tap_params params(5);
+    vil_gauss_filter_5tap(dImage, smoothedImage, params);
+    
+    vil_sobel_3x3(smoothedImage, Ix, Iy);
+    
+    //magnitude
+    magnitude = vil_image_view<double>(w, h, 1);
+    for (int y = 0; y<magnitude.nj(); y++) {
+        for (int x = 0; x<magnitude.ni(); x++) {
+            double dx = Ix(x, y, 0);
+            double dy = Iy(x, y, 0);
+            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
+        }
+    }
+}
+
+double VilPlusExtra::vil_gradient_ssd(const vil_image_view<vxl_byte> &image1, const vil_image_view<vxl_byte> & image2)
+{
+    assert(image1.ni() == image2.ni());
+    assert(image1.nj() == image2.nj());
+    
+    vil_image_view<double> mag1;
+    vil_image_view<double> mag2;
+    VilPlus::vil_magnitude(image1, mag1);
+    VilPlus::vil_magnitude(image2, mag2);
+    
+    double ssd = 0;
+    for (int j = 0; j<image1.nj(); j++) {
+        for (int i = 0; i<image1.ni(); i++) {
+            double dif = image1(i, j, 0) - image2(i, j, 0);
+            ssd += dif * dif;
+        }
+    }
+    return ssd;
+}
+
+void VilPlusExtra::draw_circle(vil_image_view<vxl_byte> & image, const vcl_vector< vgl_point_2d<double> > & pts,
+                          int radius, const vcl_vector<vxl_byte> & colour)
+{
+    for (int i = 0; i<pts.size(); i++) {
+        vgl_ellipse_2d<double> ellipse(pts[i], radius, radius);
+        vicl_overlay_ellipse(image, ellipse, colour);
+    }
+}
+
+void VilPlusExtra::draw_velocity(vil_image_view<vxl_byte> & image, const vcl_vector< vgl_point_2d<double> > & pts,
+                            const vcl_vector< vnl_vector_fixed<double, 2> > & vlt,
+                            double scale, const vcl_vector<vxl_byte> & colour)
+{
+    assert(pts.size() == vlt.size());
+    
+    VilPlus::draw_circle(image, pts, 2, colour);
+    for (int i = 0; i<pts.size(); i++) {
+        vgl_point_2d<double> p1 = pts[i];
+        double u = vlt[i][0] * scale;
+        double v = vlt[i][1] * scale;
+        vgl_point_2d<double> p2(p1.x() + u, p1.y() + v);
+        vicl_overlay_line_segment(image, vgl_line_segment_2d<double>(p1, p2), colour, 2);
+    }
+}
+
+
+
+
+
+

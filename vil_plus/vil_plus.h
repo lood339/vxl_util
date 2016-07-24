@@ -16,7 +16,6 @@
 #include <vpgl/vpgl_perspective_camera.h>
 #include <vgl/vgl_point_2d.h>
 #include <vgl/vgl_point_3d.h>
-#include <vgl/vgl_ellipse_2d.h>
 #include <vgl/vgl_line_segment_3d.h>
 
 
@@ -25,8 +24,8 @@ class VilPlus
     public:
     
     static void vil_load(const char *file_name, unsigned int nChannels, vil_image_view<double> &outImage);
-    static void vil_save(const vil_image_view<double> & image, char const* filename, bool print_logo = true);
-    static void vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo = true);
+   
+    
     static void vil_save(const vil_image_view<vxl_byte> & image, char const* filename, bool print_logo = true);
     static void vil_save(const vil_image_view<bool> &image, char const* filename, bool print_logo = true);
     
@@ -37,24 +36,16 @@ class VilPlus
     static unsigned char * vil_malloc(const vil_image_view<vxl_byte> & image);
     static vil_image_view<vxl_byte> gray2Rgb(const vil_image_view<vxl_byte> & image);    
     
-    // no smooth
-    static void vil_magnitude(const vil_image_view<double> &image, vil_image_view<double> &magnitude);
-    static void vil_magnitude(const vil_image_view<vxl_byte> & image, vil_image_view<double> &magnitude);
+   
     
     // format to double, [0 255)
     static void vil_byteToDouble(const vil_image_view<vxl_byte> & image, vil_image_view<double> & doubleImage);
     
-    static void vil_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
-                             vil_image_view<double> & grad_i, vil_image_view<double> & grad_j, bool smooth = false);
     
-    // gaussian smooth before gradient
-    static void vil_smooth_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
-                                    vil_image_view<double> & grad_i, vil_image_view<double> & grad_j);
     
     // sum of squared distance
     static double vil_ssd(const vil_image_view<vxl_byte> & image1, const vil_image_view<vxl_byte> & image2);
-    // sum of squared distance between gradient
-    static double vil_gradient_ssd(const vil_image_view<vxl_byte> &image1, const vil_image_view<vxl_byte> & image2);
+    
     
   //  static vil_image_view<double> vil_to_double(const vil_image_view<vxl_byte> & image);
     static vil_image_view<vxl_byte> vil_to_gray(const vil_image_view<vxl_byte> & image);
@@ -122,13 +113,9 @@ class VilPlus
                            const vcl_vector<vxl_byte> & colour, int lineWidth = 2);
     
     
-    static void draw_circle(vil_image_view<vxl_byte> & image, const vcl_vector< vgl_point_2d<double> > & pts,
-                            int radius, const vcl_vector<vxl_byte> & colour);
     
-    // draw the direction of velocity
-    static void draw_velocity(vil_image_view<vxl_byte> & image, const vcl_vector< vgl_point_2d<double> > & pts,
-                              const vcl_vector< vnl_vector_fixed<double, 2> > & vlt,
-                              double scale, const vcl_vector<vxl_byte> & colour);
+    
+    
     
     
     static void draw_match(const vil_image_view<vxl_byte> &image1, const vil_image_view<vxl_byte> &image2,
@@ -190,16 +177,9 @@ class VilPlus
     // d f g  with a = 1.0
     static void draw_ellipse_majorminor_axis(vil_image_view<vxl_byte> & image, const vnl_vector_fixed<double, 5> & ellipseEquation,
                                              const vcl_vector<vxl_byte> & colour);
-    static void draw_ellipse(vil_image_view<vxl_byte> & image, const vgl_ellipse_2d<double> & ellipse, const vcl_vector<vxl_byte> & colour);
     
-    // scale
-    // orientation: radians between x axis
-    static void draw_covariance(vil_image_view<vxl_byte> & image,
-                                const vnl_matrix_fixed<double, 2, 2> & cov,
-                                const vgl_point_2d<double> & loc,
-                                double orientation, const vcl_vector<vxl_byte> & colour,
-                                double scale = 3.0);
-
+    
+    
     
     // project a cylinder (from h1 to h2) into image, calculate projected rectangle area
     static void project_cylinder_rectangle(const vpgl_perspective_camera<double> & camera, const int imageWidth, const int imageHeight,
