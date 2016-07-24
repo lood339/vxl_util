@@ -430,6 +430,7 @@ bool VnlPlus::writeMat(const char *fileName, const vnl_matrix<double> & mat)
         }
     }
     fclose(pf);
+    printf("write to %s\n", fileName);
     return true;
 }
 
