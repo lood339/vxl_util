@@ -28,9 +28,13 @@
 /*
  *************************** VulPlus ********************************
  */
-/*
+
 void VulPlus::readFileNames(const char *folder, vcl_vector<vcl_string> & files)
 {
+    printf("VulPlus::readFileNames is unfinised.\n");
+    assert(0);
+    
+    /*
     assert(folder);
     vcl_list<vcl_string> fileList = vul_file_list(folder);
     
@@ -38,8 +42,9 @@ void VulPlus::readFileNames(const char *folder, vcl_vector<vcl_string> & files)
     for (vcl_list<vcl_string>::iterator ite = fileList.begin(); ite != fileList.end(); ite++) {
         files.push_back(*ite);
     }
+    */
 }
- */
+
 
 
 

@@ -13,7 +13,6 @@
 #include <vcl_vector.h>
 #include <vgl/vgl_point_2d.h>
 #include <vgl/vgl_line_2d.h>
-#include <vgl/vgl_transform_2d.h>
 #include <vgl/vgl_conic.h>
 
 // 4 * 4 colum major matrix
@@ -40,15 +39,12 @@ public:
     // focal length from two orthogonal vanishing points
     static bool focal_length(const vgl_point_2d<double> vp1, const vgl_point_2d<double> & vp2, double & fl);
     
-    static bool init_calib(const vcl_vector<vgl_point_2d<double> > &wldPts, const vcl_vector<vgl_point_2d<double> > &imgPts,
-                           const vgl_point_2d<double> &principlePoint, vpgl_perspective_camera<double> &camera);
+   
     
     static bool init_calib(const vcl_vector<vgl_point_2d<double> > &wldPts, const vcl_vector<vgl_point_2d<double> > &imgPts,
                            const vgl_point_2d<double> &principlePoint, double focalLength, vpgl_perspective_camera<double> &camera);
     
-    // camera look at a direction that z > 0
-    static bool init_calib_positive_z(const vcl_vector<vgl_point_2d<double> > &wldPts, const vcl_vector<vgl_point_2d<double> > &imgPts,
-                                      const vgl_point_2d<double> &principlePoint, vpgl_perspective_camera<double> &camera);
+    
     
     // distance_threshod: projection error in pixel
     static bool optimize_camera_by_inliers(const vcl_vector<vgl_point_2d<double> > & wldPts,
@@ -184,10 +180,7 @@ public:
     
        
     
-    // affine matrix [a b t_x; c d t_y; 0 0 1]
-    static bool vpgl_AffineTransform(const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2,
-                                     vgl_transform_2d<double> & affine);
-    
+        
     // vxl camera to opengl Camera
     // scale = display image size /original image size, like 0.5
     static void cameraToOpenGLCamera(const vpgl_perspective_camera<double> & camera, OpenglCamera & glCamera, double scale);

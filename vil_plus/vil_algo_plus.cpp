@@ -316,8 +316,36 @@ bool VilAlgoPlus::fill_line(vil_image_view<vxl_byte> & image,
         vil_image_view<vxl_byte> plane = vil_plane(image, i);
         vil_fill_line(plane, ai, aj, bi, bj, colour[i]);
     }
-    
     return true;
 }
+
+bool VilAlgoPlus::regionNoneZeroNumbers(const vil_image_view<vxl_byte> & mask,
+                                        const int width, const int height,
+                                        vnl_vector<double> & numbers)
+{
+    numbers = vnl_vector<double>(width * height, 0.0);
+    const int row_resolution = mask.nj()/height + 1;  // +1 prevent upper flow of index
+    const int col_resolution = mask.ni()/width + 1;
+    
+    for (int j = 0; j<mask.nj(); j++) {
+        for (int i = 0; i<mask.ni(); i++) {
+            if (mask(i, j) != 0) {
+                int row = j/row_resolution;
+                int col = i/col_resolution;
+                int idx = row * width + col;
+                if (!(idx >= 0 && idx < width * height)) {
+                    printf("row, cols are %d %d\n", row, col);
+                    printf("i, j are %d %d\n", i, j);
+                }
+                
+                assert(idx >= 0 && idx < width * height);
+                numbers[idx] += 1.0;
+            }
+        }
+    }
+    numbers /= row_resolution * col_resolution;
+    return true;
+}
+
 
 

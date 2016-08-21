@@ -12,6 +12,7 @@
 #include <vgl/vgl_point_2d.h>
 #include <vcl_vector.h>
 #include <vil/vil_image_view.h>
+#include <vnl/vnl_vector.h>
 
 class VilAlgoPlus
 {
@@ -49,6 +50,15 @@ public:
                           const vgl_point_2d<double> & p1,
                           const vgl_point_2d<double> & p2,
                           const vcl_vector<vxl_byte> & colour);
+    
+    
+    // numbers: 0-1.0, from top to down, from left to rith
+    static bool regionNoneZeroNumbers(const vil_image_view<vxl_byte> & mask,
+                                      const int width, const int height,
+                                      vnl_vector<double> & numbers);
+    
+    
+    
 };
 
 
