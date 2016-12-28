@@ -211,9 +211,11 @@ void vl_sift_detect_custom(VlSiftFilt * f, double *locations, int nLoc)
         
         /* check threshold and other conditions */
         {
+            /*
             double val   = at(0,0,0)
             + 0.5 * (Dx * b[0] + Dy * b[1] + Ds * b[2]) ;
             double score = (Dxx+Dyy)*(Dxx+Dyy) / (Dxx*Dyy - Dxy*Dxy) ;
+            */
             double xn = x + b[0] ;
             double yn = y + b[1] ;
             double sn = s + b[2] ;

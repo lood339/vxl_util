@@ -11,6 +11,7 @@
 
 // wrap sift feature in vl feat
 
+/*
 #include <vil/vil_image_view.h>
 #include <vcl_vector.h>
 #include <vl/sift.h>
@@ -25,6 +26,7 @@
 #include <vector>
 
 using std::vector;
+*/ 
 
 // use Vl feat libraty generate SIFT feature in the vxl format
 // can't compare with the SIFT generate from vxl bapl_keypoint_extractor
@@ -68,8 +70,10 @@ struct vl_feat_sift_parameter
     double   peak_thresh ;  // smaller--> more feature
     double   magnif     ;
     double   norm_thresh;
-    double   window_size;
+    double   window_size;   // sigma window size. standard deviation of gaussian
     int noctaves;
+    int nlevels;
+    int dim;                // dimension, 64 or 128
     
     vl_feat_sift_parameter()
     {
@@ -79,6 +83,8 @@ struct vl_feat_sift_parameter
         norm_thresh  = -1;
         window_size  = 2;
         noctaves = -1;     // as much as possible
+        nlevels = 3;
+        dim = 128;
     }
     
     void print_self()
@@ -90,6 +96,8 @@ struct vl_feat_sift_parameter
         printf("norm_thresh: %f\n", norm_thresh);
         printf("window_size: %f\n", window_size);
         printf("noctaves   : %d\n", noctaves);
+        printf("nlevels   : %d\n", nlevels);
+        printf("descriptor dim: %d\n", dim);
         printf("end.\n");
     }
 };
