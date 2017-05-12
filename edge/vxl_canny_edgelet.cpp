@@ -52,7 +52,7 @@ void VxlCannyEdgelet::cannyEdgelet(const vil_image_view<vxl_byte> & image,
     {
         char buf[1024] = {NULL};
         sprintf(buf, "smoothedImage_%d.jpg", rand()%1024);
-        VilPlus::vil_save(smoothedImage, buf);        
+       // VilPlus::vil_save(smoothedImage, buf);
     }
     
     
@@ -166,7 +166,7 @@ void VxlCannyEdgelet::cannyEdgelet(const vil_image_view<vxl_byte> & image,
     {
         char buf[1024] = {NULL};
         sprintf(buf, "grad_canny_mag_%d.jpg", rand()%1014);
-        VilPlus::vil_save(grad_canny_mag, buf);
+        //VilPlus::vil_save(grad_canny_mag, buf);
     }
     
     
@@ -1025,7 +1025,7 @@ void VxlCannyEdgelet::houghVoting(const vil_image_view<vxl_byte> & edgeMask,
     }
     // stage 2. find local maxinum
     
-    VilPlus::vil_save(accumulatedMap, "accumated_map.jpg");
+    //VilPlus::vil_save(accumulatedMap, "accumated_map.jpg");
     delete []tabSin;
     delete []tabCos;
 }

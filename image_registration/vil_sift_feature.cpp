@@ -20,6 +20,8 @@
 #include "vxl_vrel_plus.h"
 #include "vpgl_plus.h"
 #include "vil_plus.h"
+#include "vpgl_plus_extra.h"
+#include "vil_plus_extra.h"
 
 
 
@@ -325,7 +327,7 @@ void VilSIFT::geSIFTFromWarpedTopview(const vil_image_view<vxl_byte> &topviewIma
         }
     }
  
-    VilPlus::vil_cross_correlation(warpedTopview, keyImage, candidatePositions, candidatePositions, patch_size, nccs);
+    VilPlusExtra::vil_cross_correlation(warpedTopview, keyImage, candidatePositions, candidatePositions, patch_size, nccs);
     for (int i = 0; i<candidateIndex.size(); i++) {
         if (fabs(nccs[i]) >= ncc_threshold) {
             keyImageSift.push_back(keyImageSiftAll[candidateIndex[i]]);
@@ -949,7 +951,7 @@ bool VilSIFT::calibFromKeyframe(const vil_image_view<vxl_byte> &topviewImage, co
         
         vgl_point_2d<double> principlePoint(destWidth/2, destHeight/2);
         vpgl_perspective_camera<double> initCamera;
-        bool isCalib = VpglPlus::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
+        bool isCalib = VpglPlusExtra::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
         
         if (!isCalib) {
             vcl_cerr<<"init calib failed."<<vcl_endl;
@@ -1172,7 +1174,7 @@ bool VilSIFT::calibFromKeyframe_keypoint_vs_SIFT(const vil_image_view<vxl_byte> 
         
         vgl_point_2d<double> principlePoint(destWidth/2, destHeight/2);
         vpgl_perspective_camera<double> initCamera;
-        bool isCalib = VpglPlus::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
+        bool isCalib = VpglPlusExtra::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
         
         if (!isCalib) {
             vcl_cerr<<"init calib failed."<<vcl_endl;
@@ -1274,7 +1276,7 @@ bool VilSIFT::calibFromKeyframe_keypoint_vs_SIFT(const vil_image_view<vxl_byte> 
         if (sampledCourtPoints.size() >= 4) {
             vgl_point_2d<double> principlePoint(destWidth/2, destHeight/2);
             vpgl_perspective_camera<double> initCamera;
-            bool isCalib = VpglPlus::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
+            bool isCalib = VpglPlusExtra::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
             
             if (isCalib) {
                 vcl_cout<<"init focal length is "<<initCamera.get_calibration().focal_length()<<vcl_endl;
@@ -1441,7 +1443,7 @@ bool VilSIFT::calibFromKeyframeCached(const vil_image_view<vxl_byte> &topviewIma
         
         vgl_point_2d<double> principlePoint(destWidth/2, destHeight/2);
         vpgl_perspective_camera<double> initCamera;
-        bool isCalib = VpglPlus::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
+        bool isCalib = VpglPlusExtra::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
         
         if (!isCalib) {
             vcl_cerr<<"init calib failed."<<vcl_endl;
@@ -1679,7 +1681,7 @@ bool VilSIFT::calibFromKeyframeCachedSIFT(const vil_image_view<vxl_byte> &topvie
         
         vgl_point_2d<double> principlePoint(destWidth/2, destHeight/2);
         vpgl_perspective_camera<double> initCamera;
-        bool isCalib = VpglPlus::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
+        bool isCalib = VpglPlusExtra::init_calib(sampledCourtPoints_world, sampledCourtPoints, principlePoint, initCamera);
         
         if (!isCalib) {
             vcl_cerr<<"init calib failed."<<vcl_endl;

@@ -240,11 +240,8 @@ class VilPlus
     
     
     
-    // cross correlation between to images
-    // nccs: Normalized Cross Correlation
-    static void vil_cross_correlation(const vil_image_view<vxl_byte> & image1, const vil_image_view<vxl_byte> & image2,
-                                      const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2,
-                                      int window_size, vcl_vector<double> & nccs);
+    
+ 
     
     // find a corresponding patch (locate in initP in kernelImage) in destImage
     // finalP: position in destImage

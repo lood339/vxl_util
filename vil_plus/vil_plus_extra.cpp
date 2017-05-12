@@ -6,7 +6,7 @@
 //  Copyright (c) 2016 Nowhere Planet. All rights reserved.
 //
 
-//#include "vil_plus_extra.h"
+#include "vil_plus_extra.h"
 
 
 void VilPlusExtra::draw_ellipse(vil_image_view<vxl_byte> & image, const vgl_ellipse_2d<double> & ellipse, const vcl_vector<vxl_byte> & colour)
@@ -209,6 +209,48 @@ void VilPlusExtra::draw_velocity(vil_image_view<vxl_byte> & image, const vcl_vec
         vicl_overlay_line_segment(image, vgl_line_segment_2d<double>(p1, p2), colour, 2);
     }
 }
+
+void VilPlusExtra::vil_cross_correlation(const vil_image_view<vxl_byte> & image1, const vil_image_view<vxl_byte> & image2,
+                                    const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2,
+                                    int window_size,
+                                    vcl_vector<double> & nccs)
+{
+    assert(pts1.size() == pts2.size());
+    assert(image1.nplanes() == image2.nplanes());
+    
+    //   int w = image1.ni();
+    //   int h = image1.nj();
+    // 0 - 1.0
+    vil_image_view<double> source = vil_quantize::dequantize<double>(image1);
+    vil_image_view<double> dest   = vil_quantize::dequantize<double>(image2);
+    
+    for (int i = 0; i<pts1.size(); i++) {
+        int x = pts1[i].x();
+        int y = pts1[i].y();
+        if (x < window_size || x > image1.ni() - window_size || y < window_size || y > image1.nj() - window_size) {
+            nccs.push_back(0.0);
+            continue;
+        }
+        
+        vil_image_view<double> patch_s = vil_crop(source, x - window_size/2, window_size, y - window_size/2, window_size);
+        
+        x = pts2[i].x();
+        y = pts2[i].y();
+        if (x < window_size || x > image2.ni() - window_size || y < window_size || y > image2.nj() - window_size) {
+            nccs.push_back(0.0);
+            continue;
+        }
+        vil_image_view<double> patch_d = vil_crop(dest, x - window_size/2, window_size, y - window_size/2, window_size);
+        
+        vil_image_view<double> ncc    = vil_normalised_cross_correlation(patch_s, patch_d);
+        assert(ncc.ni() == 1 && ncc.nj() == 1 && ncc.nplanes() == 1);
+        nccs.push_back(ncc(0, 0, 0));
+    }
+    assert(nccs.size() == pts1.size());
+}
+
+
+
 
 
 

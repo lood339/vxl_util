@@ -42,7 +42,9 @@ public:
    
     
     static bool init_calib(const vcl_vector<vgl_point_2d<double> > &wldPts, const vcl_vector<vgl_point_2d<double> > &imgPts,
-                           const vgl_point_2d<double> &principlePoint, double focalLength, vpgl_perspective_camera<double> &camera);
+                           const vgl_point_2d<double> &principlePoint,
+                           double focalLength,
+                           vpgl_perspective_camera<double> &camera);
     
     
     

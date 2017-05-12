@@ -1,13 +1,13 @@
 //
-//  vl_sift_feature.h
+//  vl_feat_sift_parameter.h
 //  QuadCopter
 //
 //  Created by jimmy on 3/24/15.
 //  Copyright (c) 2015 Nowhere Planet. All rights reserved.
 //
 
-#ifndef __QuadCopter__vl_sift_feature__
-#define __QuadCopter__vl_sift_feature__
+#ifndef __QuadCopter__vl_feat_sift_parameter__
+#define __QuadCopter__vl_feat_sift_parametere__
 
 // wrap sift feature in vl feat
 

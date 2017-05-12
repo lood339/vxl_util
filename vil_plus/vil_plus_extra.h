@@ -62,6 +62,12 @@ public:
                               const vcl_vector< vnl_vector_fixed<double, 2> > & vlt,
                               double scale, const vcl_vector<vxl_byte> & colour);
     
+    // cross correlation between to images
+    // nccs: Normalized Cross Correlation
+    static void vil_cross_correlation(const vil_image_view<vxl_byte> & image1, const vil_image_view<vxl_byte> & image2,
+                                      const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2,
+                                     int window_size, vcl_vector<double> & nccs);
+    
     // scale
     // orientation: radians between x axis
     static void draw_covariance(vil_image_view<vxl_byte> & image,

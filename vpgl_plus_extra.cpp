@@ -42,7 +42,7 @@ bool VpglPlusExtra::init_calib(const vcl_vector<vgl_point_2d<double> > &wldPts, 
 }
 
 bool VpglPlusExtra::init_calib_positive_z(const vcl_vector<vgl_point_2d<double> > &wldPts, const vcl_vector<vgl_point_2d<double> > &imgPts,
-                                     const vgl_point_2d<double> &principlePoint, vpgl_perspective_camera<double> &camera)
+                                        const vgl_point_2d<double> &principlePoint, vpgl_perspective_camera<double> &camera)
 {
     if (wldPts.size() < 4 && imgPts.size() < 4) {
         return false;
