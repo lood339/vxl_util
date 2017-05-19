@@ -7,6 +7,13 @@
 //
 
 #include "vil_plus_extra.h"
+#include "vil_plus.h"
+#include <vil/vil_save.h>
+#include <vil/algo/vil_sobel_3x3.h>
+#include <vil/algo/vil_gauss_filter.h>
+#include <vil/vil_image_view.h>
+
+
 
 
 void VilPlusExtra::draw_ellipse(vil_image_view<vxl_byte> & image, const vgl_ellipse_2d<double> & ellipse, const vcl_vector<vxl_byte> & colour)
@@ -89,7 +96,7 @@ void VilPlusExtra::vil_magnitude(const vil_image_view<vxl_byte> & image, vil_ima
     vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
     
     // double to gradient
-    VilPlus::vil_magnitude(dImage, magnitude);
+    VilPlusExtra::vil_magnitude(dImage, magnitude);
 }
 
 void VilPlusExtra::vil_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
@@ -172,8 +179,8 @@ double VilPlusExtra::vil_gradient_ssd(const vil_image_view<vxl_byte> &image1, co
     
     vil_image_view<double> mag1;
     vil_image_view<double> mag2;
-    VilPlus::vil_magnitude(image1, mag1);
-    VilPlus::vil_magnitude(image2, mag2);
+    VilPlusExtra::vil_magnitude(image1, mag1);
+    VilPlusExtra::vil_magnitude(image2, mag2);
     
     double ssd = 0;
     for (int j = 0; j<image1.nj(); j++) {
@@ -200,7 +207,7 @@ void VilPlusExtra::draw_velocity(vil_image_view<vxl_byte> & image, const vcl_vec
 {
     assert(pts.size() == vlt.size());
     
-    VilPlus::draw_circle(image, pts, 2, colour);
+    VilPlusExtra::draw_circle(image, pts, 2, colour);
     for (int i = 0; i<pts.size(); i++) {
         vgl_point_2d<double> p1 = pts[i];
         double u = vlt[i][0] * scale;
@@ -248,6 +255,207 @@ void VilPlusExtra::vil_cross_correlation(const vil_image_view<vxl_byte> & image1
     }
     assert(nccs.size() == pts1.size());
 }
+
+bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vil_image_view<vxl_byte> & destImage,
+                                             const vgl_point_2d<double> & initP, int patchSize, int searchSize, vgl_point_2d<double> & finalP)
+{
+    assert(kernelImage.nplanes() == destImage.nplanes());
+    assert(kernelImage.ni() == destImage.ni());
+    assert(kernelImage.nj() == destImage.nj());
+    assert(patchSize < searchSize);
+    
+    int destWidth  = destImage.ni();
+    int destHeight = destImage.nj();
+    
+    vil_image_view<double> source = vil_quantize::dequantize<double>(kernelImage);
+    vil_image_view<double> dest   = vil_quantize::dequantize<double>(destImage);
+    
+    // grab patch center at initP in warped image
+    vgl_point_2d<double> c = initP;
+    vil_image_view<double> patch     = vil_crop(source, c.x() - patchSize/2, patchSize, c.y() - patchSize/2, patchSize);
+    vil_image_view<double> destPatch = vil_crop(dest, c.x() - searchSize/2, searchSize, c.y() - searchSize/2, searchSize);
+    vil_image_view<double> ncc    = vil_normalised_cross_correlation(destPatch, patch);
+    assert(ncc.nplanes() == 1);
+    
+    // max value in ncc
+    double val_max = -1.0;
+    int idx_x_ = -1;
+    int idx_y_ = -1;
+    for (int i = 0; i<ncc.ni(); i++) {
+        for (int j = 0; j<ncc.nj(); j++) {
+            double val = ncc(i, j, 0);
+            if (val > val_max) {
+                val_max = val;
+                idx_x_ = i;
+                idx_y_ = j;
+            }
+        }
+    }
+    int x_center = idx_x_ + patchSize/2;  // ncc position is in the left top, but patch center is in middle
+    int y_center = idx_y_ + patchSize/2;
+    int x_offset = c.x() - searchSize/2;  // ncc coordinate to destImage coordinate
+    int y_offset = c.y() - searchSize/2;
+    
+    finalP.set(x_center + x_offset  ,  y_center + y_offset);
+    return finalP.x() >= 0 && finalP.x() < destWidth && finalP.y() >= 0 && finalP.y() < destHeight;
+}
+
+
+bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage,
+                                             const vgl_point_2d<double> & kernelP,
+                                             const vil_image_view<vxl_byte> & destImage, const vgl_point_2d<double> & initP,
+                                             int patchSize, int searchSize, vgl_point_2d<double> & finalP)
+{
+    assert(kernelImage.nplanes() == destImage.nplanes());
+    assert(patchSize < searchSize);
+    
+    int destWidth  = destImage.ni();
+    int destHeight = destImage.nj();
+    
+    vil_image_view<double> source = vil_quantize::dequantize<double>(kernelImage);
+    vil_image_view<double> dest   = vil_quantize::dequantize<double>(destImage);
+    
+    // grab patch center at initP in warped image
+    vil_image_view<double> patch     = vil_crop(source, kernelP.x() - patchSize/2, patchSize, kernelP.y() - patchSize/2, patchSize);
+    
+    int x = initP.x() - searchSize/2;
+    int y = initP.y() - searchSize/2;
+    if (x < 0) {
+        x = 0;
+    }
+    if (y < 0) {
+        y = 0;
+    }
+    int w = searchSize;
+    int h = searchSize;
+    if (x + w > destWidth) {
+        w = destWidth - x;
+    }
+    if (y + h > destHeight) {
+        h = destHeight - y;
+    }
+    if (w < patchSize || h < patchSize) {
+        return false;
+    }
+    
+    vil_image_view<double> destPatch = vil_crop(dest, x, w, y, h);
+    
+    vil_image_view<double> ncc    = vil_normalised_cross_correlation(destPatch, patch);
+    assert(ncc.nplanes() == 1);
+    
+    // max value in ncc
+    double val_max = -1.0;
+    int idx_x_ = -1;
+    int idx_y_ = -1;
+    for (int i = 0; i<ncc.ni(); i++) {
+        for (int j = 0; j<ncc.nj(); j++) {
+            double val = fabs(ncc(i, j, 0));
+            if (val > val_max) {
+                val_max = val;
+                idx_x_ = i;
+                idx_y_ = j;
+            }
+        }
+    }
+    int x_center = idx_x_ ;      // ncc position is in the left top, but patch center is in middle
+    int y_center = idx_y_ ;
+    int x_offset = x + patchSize/2;  // ncc coordinate to destImage coordinate
+    int y_offset = y + patchSize/2;
+    
+    finalP.set(x_center + x_offset,  y_center + y_offset);
+    bool isInside = finalP.x() >= 0 && finalP.x() < destWidth && finalP.y() >= 0 && finalP.y() < destHeight;
+    
+    if (!isInside) {
+        printf("out of dest image %f %f\n", finalP.x(), finalP.y());
+    }
+    return isInside;
+}
+
+bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vcl_vector<vgl_point_2d<double> > & kernelPts,
+                                             const vil_image_view<vxl_byte> & destImage, const vcl_vector<vgl_point_2d<double> > & initPts,
+                                             int patchSize, int searchSize, vcl_vector<vgl_point_2d<double> > & finalP)
+{
+    assert(kernelImage.nplanes() == destImage.nplanes());
+    assert(patchSize < searchSize);
+    assert(kernelPts.size() == initPts.size());
+    assert(finalP.size() == 0);
+    
+    int destWidth  = destImage.ni();
+    int destHeight = destImage.nj();
+    vil_image_view<double> source = vil_quantize::dequantize<double>(kernelImage);
+    vil_image_view<double> dest   = vil_quantize::dequantize<double>(destImage);
+    
+    // loop over all initial correspondence
+    for (int i = 0; i<kernelPts.size(); i++) {
+        vgl_point_2d<double> kp = kernelPts[i];  // kernal position
+        vgl_point_2d<double> ip = initPts[i];    // init position
+        vgl_point_2d<double> cp;  // corresponding position
+        
+        vil_image_view<double> patch     = vil_crop(source, kp.x() - patchSize/2, patchSize, kp.y() - patchSize/2, patchSize);
+        
+        // search top-left position
+        int x = ip.x() - searchSize/2;
+        int y = ip.y() - searchSize/2;
+        if (x < 0) {
+            x = 0;
+        }
+        if (y < 0) {
+            y = 0;
+        }
+        // search size
+        int w = searchSize;
+        int h = searchSize;
+        if (x + w > destWidth) {
+            w = destWidth - x;
+        }
+        if (y + h > destHeight) {
+            h = destHeight - y;
+        }
+        // search size smaller than patch size
+        if (w < patchSize || h < patchSize) {
+            finalP.push_back(vgl_point_2d<double>(-1, -1));
+            continue;
+        }
+        
+        vil_image_view<double> destPatch = vil_crop(dest, x, w, y, h);
+        
+        vil_image_view<double> ncc    = vil_normalised_cross_correlation(destPatch, patch);
+        assert(ncc.nplanes() == 1);
+        
+        // max value in ncc
+        double val_max = -1.0;
+        int idx_x_ = -1;
+        int idx_y_ = -1;
+        for (int i = 0; i<ncc.ni(); i++) {
+            for (int j = 0; j<ncc.nj(); j++) {
+                double val = fabs(ncc(i, j, 0));
+                if (val > val_max) {
+                    val_max = val;
+                    idx_x_ = i;
+                    idx_y_ = j;
+                }
+            }
+        }
+        int x_center = idx_x_ ;      // ncc position is in the left top, but patch center is in middle
+        int y_center = idx_y_ ;
+        int x_offset = x + patchSize/2;  // ncc coordinate to destImage coordinate
+        int y_offset = y + patchSize/2;
+        
+        cp.set(x_center + x_offset,  y_center + y_offset);
+        bool isInside = cp.x() >= 0 && cp.x() < destWidth && cp.y() >= 0 && cp.y() < destHeight;
+        
+        if (!isInside) {
+            finalP.push_back(vgl_point_2d<double>(-1, -1));
+            continue;
+        }
+        finalP.push_back(cp);
+    }
+    assert(kernelPts.size() == finalP.size());
+    
+    return true;
+}
+
+
 
 
 

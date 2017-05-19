@@ -64,9 +64,12 @@ public:
     
     // cross correlation between to images
     // nccs: Normalized Cross Correlation
-    static void vil_cross_correlation(const vil_image_view<vxl_byte> & image1, const vil_image_view<vxl_byte> & image2,
-                                      const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2,
-                                     int window_size, vcl_vector<double> & nccs);
+    static void vil_cross_correlation(const vil_image_view<vxl_byte> & image1,
+                                      const vil_image_view<vxl_byte> & image2,
+                                      const vcl_vector<vgl_point_2d<double> > & pts1,
+                                      const vcl_vector<vgl_point_2d<double> > & pts2,
+                                      int window_size,
+                                      vcl_vector<double> & nccs);
     
     // scale
     // orientation: radians between x axis
@@ -75,6 +78,25 @@ public:
                                 const vgl_point_2d<double> & loc,
                                 double orientation, const vcl_vector<vxl_byte> & colour,
                                 double scale = 3.0);
+    
+    
+    // find a corresponding patch (locate in initP in kernelImage) in destImage
+    // finalP: position in destImage
+    // assume kernelImage as same size as destImage, and had similar content around initP
+    static bool vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vil_image_view<vxl_byte> & destImage,
+                                          const vgl_point_2d<double> & initP, int patchSize, int searchSize, vgl_point_2d<double> & finalP);
+    
+    // find single corresponding patch match from kernalImage to destImage
+    static bool vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vgl_point_2d<double> & kernelP,
+                                          const vil_image_view<vxl_byte> & destImage, const vgl_point_2d<double> & initP,
+                                          int patchSize, int searchSize, vgl_point_2d<double> & finalP);
+    
+    // find a group of corresponding patch matches
+    // (-1, -1) in finalP for miss-matching
+    // kernalPts: center position of points in kernalImage, the patch should be inside of image
+    static bool vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vcl_vector<vgl_point_2d<double> > & kernelPts,
+                                          const vil_image_view<vxl_byte> & destImage, const vcl_vector<vgl_point_2d<double> > & initPts,
+                                          int patchSize, int searchSize, vcl_vector<vgl_point_2d<double> > & finalP);
 };
 
 #endif /* defined(__GenerateFeature__vil_plus_extra__) */

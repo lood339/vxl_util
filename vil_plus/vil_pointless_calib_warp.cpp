@@ -20,6 +20,7 @@
 #include "vil_plus.h"
 #include "LucasKanadaWarps_PTZCamera.h"
 #include "LucasKanadaWarp_2D_translate.h"
+#include "vil_plus_extra.h"
 
 //long gradient pair
 struct LongGradientPair {
@@ -58,8 +59,8 @@ bool VilPointlessCalibWarp::warpCourtToImage(BasketballCourt * court, const vil_
     
     //magnitude of courtImage
     vil_image_view<double> court_magnitude;
-    VilPlus::vil_magnitude(court_double, court_magnitude);
-    VilPlus::vil_save(court_magnitude, "magnitude_court.jpg");
+    VilPlusExtra::vil_magnitude(court_double, court_magnitude);
+    VilPlusExtra::vil_save(court_magnitude, "magnitude_court.jpg");
     
     //gradient of magnitude of court image
     LongGradientPair courtPair;
@@ -92,8 +93,8 @@ bool VilPointlessCalibWarp::warpCourtToImage(BasketballCourt * court, const vil_
     
     vil_image_view<double> image_dequantized = vil_quantize::dequantize<double>(image);
     vil_image_view<double> image_magnitude;
-    VilPlus::vil_magnitude(image_dequantized, image_magnitude);
-    VilPlus::vil_save(image_magnitude, "magnitude_image.jpg");
+    VilPlusExtra::vil_magnitude(image_dequantized, image_magnitude);
+    VilPlusExtra::vil_save(image_magnitude, "magnitude_image.jpg");
     
     LongGradientPair imagePair;
     {
@@ -119,7 +120,7 @@ bool VilPointlessCalibWarp::warpCourtToImage(BasketballCourt * court, const vil_
     // weight image
     vil_image_view<double> wtImage;
     court->getWeightImage(initCamera, image.ni(), image.nj(), radius * 2, 100, wtImage);
-    VilPlus::vil_save(wtImage, vcl_string(court->name() + "_weight_image.jpg").c_str());
+    VilPlusExtra::vil_save(wtImage, vcl_string(court->name() + "_weight_image.jpg").c_str());
     
     
     vgl_transform_2d<double> curModel = court->imageToWorld();
@@ -148,8 +149,8 @@ bool VilPointlessCalibWarp::warpCourtToImage(SoccerCourt * court, const vil_imag
     
     //magnitude of courtImage
     vil_image_view<double> court_magnitude;
-    VilPlus::vil_magnitude(court_double, court_magnitude);
-    VilPlus::vil_save(court_magnitude, "magnitude_court.jpg");
+    VilPlusExtra::vil_magnitude(court_double, court_magnitude);
+    VilPlusExtra::vil_save(court_magnitude, "magnitude_court.jpg");
     
     //gradient of magnitude of court image
     LongGradientPair courtPair;
@@ -182,8 +183,8 @@ bool VilPointlessCalibWarp::warpCourtToImage(SoccerCourt * court, const vil_imag
     
     vil_image_view<double> image_dequantized = vil_quantize::dequantize<double>(image);
     vil_image_view<double> image_magnitude;
-    VilPlus::vil_magnitude(image_dequantized, image_magnitude);
-    VilPlus::vil_save(image_magnitude, "magnitude_image.jpg");
+    VilPlusExtra::vil_magnitude(image_dequantized, image_magnitude);
+    VilPlusExtra::vil_save(image_magnitude, "magnitude_image.jpg");
     
     LongGradientPair imagePair;
     imagePair.image = image_magnitude;
@@ -191,7 +192,7 @@ bool VilPointlessCalibWarp::warpCourtToImage(SoccerCourt * court, const vil_imag
     // weight image
     vil_image_view<double> wtImage;
     court->getWeightImage(initCamera, image.ni(), image.nj(), radius * 2, 100, wtImage);
-    VilPlus::vil_save(wtImage, vcl_string(court->name() + "_weight_image.jpg").c_str());    
+    VilPlusExtra::vil_save(wtImage, vcl_string(court->name() + "_weight_image.jpg").c_str());
     
     vgl_transform_2d<double> curModel = court->imageToWorld();
     NaturalCameraImageToPitchWarp curWarp(initCamera, curModel);
@@ -226,8 +227,8 @@ bool VilPointlessCalibWarp::warpCourtToImageWithLogo(DisneyWorldBasketballCourt 
     
     //magnitude of courtImage
     vil_image_view<double> court_magnitude;
-    VilPlus::vil_magnitude(court_double, court_magnitude);
-    VilPlus::vil_save(court_magnitude, "magnitude_court.jpg");
+    VilPlusExtra::vil_magnitude(court_double, court_magnitude);
+    VilPlusExtra::vil_save(court_magnitude, "magnitude_court.jpg");
     
     //gradient of magnitude of court image
     LongGradientPair courtPair;
@@ -260,8 +261,8 @@ bool VilPointlessCalibWarp::warpCourtToImageWithLogo(DisneyWorldBasketballCourt 
     
     vil_image_view<double> image_dequantized = vil_quantize::dequantize<double>(image);
     vil_image_view<double> image_magnitude;
-    VilPlus::vil_magnitude(image_dequantized, image_magnitude);
-    VilPlus::vil_save(image_magnitude, "magnitude_image.jpg");
+    VilPlusExtra::vil_magnitude(image_dequantized, image_magnitude);
+    VilPlusExtra::vil_save(image_magnitude, "magnitude_image.jpg");
     
     LongGradientPair imagePair;
     {
@@ -288,7 +289,7 @@ bool VilPointlessCalibWarp::warpCourtToImageWithLogo(DisneyWorldBasketballCourt 
     // weight image
     vil_image_view<double> wtImage;
     court->getWeightImageWithLogo(initCamera, image.ni(), image.nj(), radius*2, 100, wtImage);
-    VilPlus::vil_save(wtImage, vcl_string(court->name() + "_weight_image.jpg").c_str());
+    VilPlusExtra::vil_save(wtImage, vcl_string(court->name() + "_weight_image.jpg").c_str());
     
     
     vgl_transform_2d<double> curModel = court->imageToWorld();
@@ -328,8 +329,8 @@ double VilPointlessCalibWarp::warp2DPatternToImage(const vil_image_view<vxl_byte
     
     //magnitude of pattern
     vil_image_view<double> pattern_magnitude;
-    VilPlus::vil_magnitude(pattern_double, pattern_magnitude);
-    VilPlus::vil_save(pattern_magnitude, "pattern_court.jpg");
+    VilPlusExtra::vil_magnitude(pattern_double, pattern_magnitude);
+    VilPlusExtra::vil_save(pattern_magnitude, "pattern_court.jpg");
     
     //gradient of magnitude of pattern
     LongGradientPair patternPair;
@@ -359,8 +360,8 @@ double VilPointlessCalibWarp::warp2DPatternToImage(const vil_image_view<vxl_byte
     
     vil_image_view<double> image_dequantized = vil_quantize::dequantize<double>(image);
     vil_image_view<double> image_magnitude;
-    VilPlus::vil_magnitude(image_dequantized, image_magnitude);
-    VilPlus::vil_save(image_magnitude, "magnitude_image.jpg");
+    VilPlusExtra::vil_magnitude(image_dequantized, image_magnitude);
+    VilPlusExtra::vil_save(image_magnitude, "magnitude_image.jpg");
     
     LongGradientPair imagePair;
     {
@@ -402,8 +403,8 @@ bool VilPointlessCalibWarp::homographyWarp(const vil_image_view<vxl_byte> & sour
         vil_convert_planes_to_grey(source, grey);
         vil_image_view<double> source_double = vil_quantize::dequantize<double>(grey);
         
-        VilPlus::vil_magnitude(source_double, source_magnitude);
-        VilPlus::vil_save(source_magnitude, "magnitude_source.jpg");
+        VilPlusExtra::vil_magnitude(source_double, source_magnitude);
+        VilPlusExtra::vil_save(source_magnitude, "magnitude_source.jpg");
     }
    
     vil_image_view<double> dest_magnitude;
@@ -412,8 +413,8 @@ bool VilPointlessCalibWarp::homographyWarp(const vil_image_view<vxl_byte> & sour
         vil_convert_planes_to_grey(dest, grey);
         vil_image_view<double> dest_double = vil_quantize::dequantize<double>(grey);
         
-        VilPlus::vil_magnitude(dest_double, dest_magnitude);
-        VilPlus::vil_save(dest_magnitude, "magnitude_dest.jpg");
+        VilPlusExtra::vil_magnitude(dest_double, dest_magnitude);
+        VilPlusExtra::vil_save(dest_magnitude, "magnitude_dest.jpg");
     }
     
     vil_image_view<double> Ix;
@@ -458,8 +459,8 @@ bool VilPTZPointlessWarp::warpCourtToImage(BasketballCourt * court, const vil_im
     
     //magnitude of courtImage
     vil_image_view<double> court_magnitude;
-    VilPlus::vil_magnitude(court_double, court_magnitude);
-    VilPlus::vil_save(court_magnitude, "magnitude_court.jpg");
+    VilPlusExtra::vil_magnitude(court_double, court_magnitude);
+    VilPlusExtra::vil_save(court_magnitude, "magnitude_court.jpg");
     
     //gradient of magnitude of court image
     LongGradientPair courtPair;
@@ -492,8 +493,8 @@ bool VilPTZPointlessWarp::warpCourtToImage(BasketballCourt * court, const vil_im
     
     vil_image_view<double> image_dequantized = vil_quantize::dequantize<double>(image);
     vil_image_view<double> image_magnitude;
-    VilPlus::vil_magnitude(image_dequantized, image_magnitude);
-    VilPlus::vil_save(image_magnitude, "magnitude_image.jpg");
+    VilPlusExtra::vil_magnitude(image_dequantized, image_magnitude);
+    VilPlusExtra::vil_save(image_magnitude, "magnitude_image.jpg");
     
     LongGradientPair imagePair;
     imagePair.image = image_magnitude;
@@ -501,7 +502,7 @@ bool VilPTZPointlessWarp::warpCourtToImage(BasketballCourt * court, const vil_im
     // weight image
     vil_image_view<double> wtImage;
     court->getWeightImage(initCamera, image.ni(), image.nj(), radius * 2, 100, wtImage);
-    VilPlus::vil_save(wtImage, vcl_string(court->name() + "_weight_image.jpg").c_str());
+    VilPlusExtra::vil_save(wtImage, vcl_string(court->name() + "_weight_image.jpg").c_str());
     
     
     vgl_transform_2d<double> curModel = court->imageToWorld();
@@ -551,7 +552,7 @@ bool VilTopviewPointlessCalibWarp::warpTopviewToImageCalib(const vil_image_view<
     vil_image_view<vxl_byte> grey_topview;
     vil_convert_planes_to_grey(topview, grey_topview);
     vil_image_view<double> topview_double = vil_quantize::dequantize<double>(grey_topview);
-    VilPlus::vil_save(topview_double, "warpTopview_topview_grey.jpg");
+    VilPlusExtra::vil_save(topview_double, "warpTopview_topview_grey.jpg");
     
     //gradient of magnitude of topview image
     LongGradientPair topviewPair;
@@ -576,7 +577,7 @@ bool VilTopviewPointlessCalibWarp::warpTopviewToImageCalib(const vil_image_view<
     vil_image_view<vxl_byte> grey_image;
     vil_convert_planes_to_grey(image, grey_image);
     vil_image_view<double> image_double = vil_quantize::dequantize<double>(grey_image);
-    VilPlus::vil_save(image_double, "warpTopview_grey_image.jpg");
+    VilPlusExtra::vil_save(image_double, "warpTopview_grey_image.jpg");
     
     LongGradientPair imagePair;
     {
@@ -598,7 +599,7 @@ bool VilTopviewPointlessCalibWarp::warpTopviewToImageCalib(const vil_image_view<
     
     vil_image_view<double> wtImage;
     court.getWeightImageWithLogo(initCamera, image.ni(), image.nj(), wt_radius, 100, wtImage);
-    VilPlus::vil_save(wtImage, vcl_string(court.name() + "_weight_image.jpg").c_str());
+    VilPlusExtra::vil_save(wtImage, vcl_string(court.name() + "_weight_image.jpg").c_str());
     
     
     vgl_transform_2d<double> curModel = court.imageToWorld();

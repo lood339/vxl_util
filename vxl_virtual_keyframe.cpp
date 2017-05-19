@@ -18,6 +18,8 @@
 #include <vil/vil_image_pyramid.txx>
 #include <vcl_algorithm.h>
 #include "vil_plus.h"
+#include "vpgl_plus_extra.h"
+#include "vil_plus_extra.h"
 
 
 bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspective_camera<double> & initCamera, const vil_image_view<vxl_byte> & image,
@@ -94,7 +96,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspectiv
             }
             
             vgl_point_2d<double> finalP;
-            bool isRefine = VilPlus::vil_refine_patch_position(warpedTopviews[i], q1, image, q2, patchSize, searchSize, finalP);
+            bool isRefine = VilPlusExtra::vil_refine_patch_position(warpedTopviews[i], q1, image, q2, patchSize, searchSize, finalP);
             if (isRefine) {
                 if (isTest) {
                     pts1.push_back(q1);
@@ -139,7 +141,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspectiv
     
     //
     vpgl_perspective_camera<double> curInitCamera;
-    bool isInit = VpglPlus::init_calib(wld_pts, img_pts, vgl_point_2d<double>(width/2, height/2), curInitCamera);
+    bool isInit = VpglPlusExtra::init_calib(wld_pts, img_pts, vgl_point_2d<double>(width/2, height/2), curInitCamera);
     if (!isInit) {
         return false;
     }
@@ -269,7 +271,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspectiv
             pts2[j].set(pts2[j].x()/2, pts2[j].y()/2);
         }
         vcl_vector<vgl_point_2d<double> > correspondence;
-        bool isRefine = VilPlus::vil_refine_patch_position(half_warpedImage, pts1, half_queryImage, pts2, patchSize/2, searchSize/2, correspondence);
+        bool isRefine = VilPlusExtra::vil_refine_patch_position(half_warpedImage, pts1, half_queryImage, pts2, patchSize/2, searchSize/2, correspondence);
         assert(isRefine);
         
         // test patch match result
@@ -344,7 +346,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspectiv
     
     //
     vpgl_perspective_camera<double> curInitCamera;
-    bool isInit = VpglPlus::init_calib(wld_pts, img_pts, vgl_point_2d<double>(width/2, height/2), curInitCamera);
+    bool isInit = VpglPlusExtra::init_calib(wld_pts, img_pts, vgl_point_2d<double>(width/2, height/2), curInitCamera);
     if (!isInit) {
         return false;
     }
@@ -449,7 +451,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFramesFullResolution(const v
         }
        
         vcl_vector<vgl_point_2d<double> > correspondence;
-        bool isRefine = VilPlus::vil_refine_patch_position(warpedTopviews[ite], pts1, queryImage, pts2, patchSize, searchSize, correspondence);
+        bool isRefine = VilPlusExtra::vil_refine_patch_position(warpedTopviews[ite], pts1, queryImage, pts2, patchSize, searchSize, correspondence);
         assert(isRefine);
         
         // test patch match result
@@ -519,7 +521,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFramesFullResolution(const v
     
     //
     vpgl_perspective_camera<double> curInitCamera;
-    bool isInit = VpglPlus::init_calib(wld_pts, img_pts, vgl_point_2d<double>(width/2, height/2), curInitCamera);
+    bool isInit = VpglPlusExtra::init_calib(wld_pts, img_pts, vgl_point_2d<double>(width/2, height/2), curInitCamera);
     if (!isInit) {
         return false;
     }

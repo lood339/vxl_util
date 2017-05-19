@@ -9,11 +9,15 @@
 #include "vpgl_plus_extra.h"
 #include <vpgl/algo/vpgl_calibration_matrix_compute.h>
 #include <vpgl/algo/vpgl_camera_compute+.h>
+#include <vnl/vnl_least_squares_function.h>
+#include <vnl/algo/vnl_levenberg_marquardt.h>
 
 
 
-bool VpglPlusExtra::init_calib(const vcl_vector<vgl_point_2d<double> > &wldPts, const vcl_vector<vgl_point_2d<double> > &imgPts,
-                          const vgl_point_2d<double> &principlePoint, vpgl_perspective_camera<double> &camera)
+bool VpglPlusExtra::init_calib(const vcl_vector<vgl_point_2d<double> > &wldPts,
+                               const vcl_vector<vgl_point_2d<double> > &imgPts,
+                               const vgl_point_2d<double> &principlePoint,
+                               vpgl_perspective_camera<double> &camera)
 {
     if (wldPts.size() < 4 && imgPts.size() < 4) {
         return false;
@@ -41,6 +45,7 @@ bool VpglPlusExtra::init_calib(const vcl_vector<vgl_point_2d<double> > &wldPts, 
     return true;
 }
 
+/*
 bool VpglPlusExtra::init_calib_positive_z(const vcl_vector<vgl_point_2d<double> > &wldPts, const vcl_vector<vgl_point_2d<double> > &imgPts,
                                         const vgl_point_2d<double> &principlePoint, vpgl_perspective_camera<double> &camera)
 {
@@ -69,8 +74,7 @@ bool VpglPlusExtra::init_calib_positive_z(const vcl_vector<vgl_point_2d<double> 
     }
     return true;
 }
-
-
+ */
 
 
 class vpgl_AffineTransform_residual: public vnl_least_squares_function

@@ -16,7 +16,6 @@
 
 #include <vgl/algo/vgl_homg_operators_2d.h>
 #include <vcl_algorithm.h>
-
 #include <vgl/algo/vgl_h_matrix_2d_compute_linear.h>
 #include <vgl/algo/vgl_h_matrix_3d.h>
 #include <vnl/vnl_double_3.h>

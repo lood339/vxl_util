@@ -14,7 +14,10 @@
 #include <bapl/bapl_lowe_keypoint_sptr.h>
 #include <bapl/bapl_bbf_tree.h>
 
-bool VlSIFTFeature::vl_keypoint_extractor( const vil_image_view<vxl_byte> & image, const vl_feat_sift_parameter &param, vcl_vector<bapl_keypoint_sptr> & keypoints, bool verbose)
+bool VlSIFTFeature::vl_keypoint_extractor(const vil_image_view<vxl_byte> & image,
+                                          const vl_feat_sift_parameter &param,
+                                          vcl_vector<bapl_keypoint_sptr> & keypoints,
+                                          bool verbose)
 {
     vil_image_view<vxl_byte> grey;
     if (image.nplanes() == 1) {
