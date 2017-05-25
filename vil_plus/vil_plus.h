@@ -29,6 +29,13 @@ class VilPlus
     static void vil_save(const vil_image_view<vxl_byte> & image, char const* filename, bool print_logo = true);
     static void vil_save(const vil_image_view<bool> &image, char const* filename, bool print_logo = true);
     
+    // no smooth
+    static void vil_magnitude(const vil_image_view<double> &image, vil_image_view<double> &magnitude);
+    static void vil_magnitude(const vil_image_view<vxl_byte> & image, vil_image_view<double> &magnitude);
+    
+    static void vil_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
+                             vil_image_view<double> & grad_i, vil_image_view<double> & grad_j, bool smooth = false);
+    
     // save to .mat file
     static void vil_save_as_vnl_matrix(const vil_image_view<double> & image, char const* filename, bool print_logo = true);
     
@@ -193,7 +200,7 @@ class VilPlus
     static void draw_image_grid(const vcl_vector<vil_image_view<vxl_byte> > & images, int nCols, vil_image_view<vxl_byte> & gridImage, int gapWidth = 5);
     
     
-    static void visualize_gradient_direction_hsv(vil_image_view<vxl_byte> &image, vil_image_view<vxl_byte> &gradient_direction);
+    //static void visualize_gradient_direction_hsv(vil_image_view<vxl_byte> &image, vil_image_view<vxl_byte> &gradient_direction);
     
     //    h = [0,360], s = [0,1], v = [0,1]
     //    rgb in [0 255]
@@ -253,7 +260,7 @@ class VilPlus
                                        vcl_vector<vcl_vector<vgl_point_2d<double> > > & labelPts);
     
     // draw a line inside of w x h image
-    // abandoned functions
+    // abandoned functionsvil_ssd
     static bool draw_line(const vgl_point_2d<double> & p0, const vgl_point_2d<double> & p1, vcl_vector<vgl_point_2d<double> > & linePts);
     static bool draw_line(const vgl_point_2d<double> & p0, const vgl_point_2d<double> & p1, vcl_vector<vgl_point_2d<double> > & linePts, int w, int h);
     // pixel position in line end point are just reasonable good.

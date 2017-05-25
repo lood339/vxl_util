@@ -74,7 +74,7 @@ bool VpglPlusExtra::init_calib_positive_z(const vcl_vector<vgl_point_2d<double> 
     }
     return true;
 }
- */
+*/
 
 
 class vpgl_AffineTransform_residual: public vnl_least_squares_function

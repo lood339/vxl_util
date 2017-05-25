@@ -6,14 +6,13 @@
 //  Copyright (c) 2016 Nowhere Planet. All rights reserved.
 //
 
-#include "vil_plus_extra.h"
 #include "vil_plus.h"
+#include "vil_plus_extra.h"
 #include <vil/vil_save.h>
 #include <vil/algo/vil_sobel_3x3.h>
 #include <vil/algo/vil_gauss_filter.h>
-#include <vil/vil_image_view.h>
-
-
+#include <vicl/vicl_ellipse.h>
+#include <vicl/vicl_colours.h>
 
 
 void VilPlusExtra::draw_ellipse(vil_image_view<vxl_byte> & image, const vgl_ellipse_2d<double> & ellipse, const vcl_vector<vxl_byte> & colour)
@@ -43,13 +42,16 @@ void VilPlusExtra::draw_covariance(vil_image_view<vxl_byte> & image,
     VilPlusExtra::draw_ellipse(image, ellipse, colour);
 }
 
+
 void VilPlusExtra::vil_save(const vil_image_view<double> & image, char const* filename, bool print_logo)
 {
+    
     bool isSaveOk = ::vil_save(vil_quantize::quantize<vxl_byte>(image, true), filename);
     if (print_logo && isSaveOk) {
         vcl_cout<<"save to: "<<filename<<vcl_endl;
     }
 }
+
 
 void VilPlusExtra::vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo)
 {
@@ -64,78 +66,7 @@ void VilPlusExtra::vil_save(const vil_image_view<int> & image, char const* filen
     VilPlusExtra::vil_save(dImage, filename, print_logo);
 }
 
-void VilPlusExtra::vil_magnitude(const vil_image_view<double> &image, vil_image_view<double> &magnitude)
-{
-    //Ix, Iy
-    vil_image_view<double> Ix, Iy;
-    vil_sobel_3x3(image, Ix, Iy);
-    
-    //magnitude
-    magnitude = vil_image_view<double>(image.ni(), image.nj(), 1);
-    for (int y = 0; y<magnitude.nj(); y++) {
-        for (int x = 0; x<magnitude.ni(); x++) {
-            double dx = Ix(x, y, 0);
-            double dy = Iy(x, y, 0);
-            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
-        }
-    }
-}
 
-void VilPlusExtra::vil_magnitude(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude)
-{
-    // rgb to gray
-    vil_image_view<vxl_byte> gray;
-    if (image.nplanes() == 3) {
-        gray = VilPlus::vil_to_gray(image);
-    }
-    else
-    {
-        gray = image;
-    }
-    // gray to double
-    vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
-    
-    // double to gradient
-    VilPlusExtra::vil_magnitude(dImage, magnitude);
-}
-
-void VilPlusExtra::vil_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
-                           vil_image_view<double> & Ix, vil_image_view<double> & Iy, bool smooth)
-{
-    const int w = image.ni();
-    const int h = image.nj();
-    
-    // rgb to gray
-    vil_image_view<vxl_byte> gray;
-    if (image.nplanes() == 3) {
-        gray = VilPlus::vil_to_gray(image);
-    }
-    else
-    {
-        gray = image;
-    }
-    // gray to double
-    vil_image_view<double> dImage = vil_quantize::dequantize<double>(gray);
-    
-    if (smooth) {
-        vil_image_view<double> smoothedImage = vil_image_view<double>(w, h, 1);
-        vil_gauss_filter_5tap_params params(5);
-        vil_gauss_filter_5tap(dImage, smoothedImage, params);
-        dImage = smoothedImage;
-    }
-    
-    vil_sobel_3x3(dImage, Ix, Iy);
-    
-    //magnitude
-    magnitude = vil_image_view<double>(w, h, 1);
-    for (int y = 0; y<magnitude.nj(); y++) {
-        for (int x = 0; x<magnitude.ni(); x++) {
-            double dx = Ix(x, y, 0);
-            double dy = Iy(x, y, 0);
-            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
-        }
-    }
-}
 
 void VilPlusExtra::vil_smooth_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
                                   vil_image_view<double> & Ix, vil_image_view<double> & Iy)
@@ -179,8 +110,8 @@ double VilPlusExtra::vil_gradient_ssd(const vil_image_view<vxl_byte> &image1, co
     
     vil_image_view<double> mag1;
     vil_image_view<double> mag2;
-    VilPlusExtra::vil_magnitude(image1, mag1);
-    VilPlusExtra::vil_magnitude(image2, mag2);
+    VilPlus::vil_magnitude(image1, mag1);
+    VilPlus::vil_magnitude(image2, mag2);
     
     double ssd = 0;
     for (int j = 0; j<image1.nj(); j++) {
@@ -256,7 +187,8 @@ void VilPlusExtra::vil_cross_correlation(const vil_image_view<vxl_byte> & image1
     assert(nccs.size() == pts1.size());
 }
 
-bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vil_image_view<vxl_byte> & destImage,
+
+bool VilPlusExtra::refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vil_image_view<vxl_byte> & destImage,
                                              const vgl_point_2d<double> & initP, int patchSize, int searchSize, vgl_point_2d<double> & finalP)
 {
     assert(kernelImage.nplanes() == destImage.nplanes());
@@ -301,7 +233,7 @@ bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & ke
 }
 
 
-bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage,
+bool VilPlusExtra::refine_patch_position(const vil_image_view<vxl_byte> & kernelImage,
                                              const vgl_point_2d<double> & kernelP,
                                              const vil_image_view<vxl_byte> & destImage, const vgl_point_2d<double> & initP,
                                              int patchSize, int searchSize, vgl_point_2d<double> & finalP)
@@ -371,7 +303,7 @@ bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & ke
     return isInside;
 }
 
-bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vcl_vector<vgl_point_2d<double> > & kernelPts,
+bool VilPlusExtra::refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vcl_vector<vgl_point_2d<double> > & kernelPts,
                                              const vil_image_view<vxl_byte> & destImage, const vcl_vector<vgl_point_2d<double> > & initPts,
                                              int patchSize, int searchSize, vcl_vector<vgl_point_2d<double> > & finalP)
 {
@@ -454,6 +386,7 @@ bool VilPlusExtra::vil_refine_patch_position(const vil_image_view<vxl_byte> & ke
     
     return true;
 }
+
 
 
 

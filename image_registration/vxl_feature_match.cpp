@@ -208,6 +208,7 @@ public:
     
 };
 
+/*
 bool VxlFeatureMatch::epipolarMatch(const vcl_vector<bapl_keypoint_sptr> & leftKeypoints,
                                      const vcl_vector<bapl_keypoint_sptr> & rightKeypoints,
                                      const vpgl_perspective_camera<double> & cl,
@@ -266,7 +267,9 @@ bool VxlFeatureMatch::epipolarMatch(const vcl_vector<bapl_keypoint_sptr> & leftK
     assert(matches.size() == leftKeypoints.size());
     return true;
 }
+*/
 
+/*
 bool VxlFeatureMatch::epipolarMatch(const vcl_vector<vgl_point_2d<double> > & ptsl,
                                      const vcl_vector<vgl_point_2d<double> > & ptsr,
                                      const vpgl_perspective_camera<double> & cl,
@@ -299,6 +302,7 @@ bool VxlFeatureMatch::epipolarMatch(const vcl_vector<vgl_point_2d<double> > & pt
     }
     return isMatch.size() == ptsl.size();
 }
+ */
 
 static int getPatchIndex(const vgl_point_2d<double> & p, int patchSize, int imageW)
 {

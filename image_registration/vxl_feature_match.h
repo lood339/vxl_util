@@ -62,7 +62,7 @@ public:
                                    vcl_vector<vgl_point_2d<double> > & ptsA,
                                    vcl_vector<vgl_point_2d<double> > & ptsB, double ratio = 0.7);
     
-    
+    /*
     // matching points constrained by epipolar line
     static bool epipolarMatch(const vcl_vector<bapl_keypoint_sptr> & leftKeypoints,
                               const vcl_vector<bapl_keypoint_sptr> & rightKeypoints,
@@ -79,6 +79,7 @@ public:
                               const vpgl_perspective_camera<double> & cr,
                               vcl_vector<bool> & isMatch,
                               double min_pts_line_dis = 2.0);
+     */
     
     // match sift feature in local area
     // feature_distance_threshold: experimental value, 0.5 for vl feat

@@ -10,7 +10,6 @@
 #define __CalibFromScene__vxl_virtual_keyframe__
 
 #include <vcl_vector.h>
-
 #include <vpgl/vpgl_perspective_camera.h>
 #include <vil/vil_image_view.h>
 

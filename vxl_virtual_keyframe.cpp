@@ -7,6 +7,7 @@
 //
 
 #include "vxl_virtual_keyframe.h"
+
 #include <vgl/vgl_point_2d.h>
 #include <vgl/vgl_point_3d.h>
 #include "vxl_ptz_camera.h"
@@ -17,15 +18,18 @@
 #include <vil/vil_image_pyramid.h>
 #include <vil/vil_image_pyramid.txx>
 #include <vcl_algorithm.h>
-#include "vil_plus.h"
 #include "vpgl_plus_extra.h"
+#include "vil_plus.h"
 #include "vil_plus_extra.h"
+
+
 
 
 bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspective_camera<double> & initCamera, const vil_image_view<vxl_byte> & image,
                                                            const vil_image_view<vxl_byte> & topviewImage,
                                                            const int patchSize, const int searchSize, vpgl_perspective_camera<double> & finalCamera)
 {
+    
     assert(image.nplanes() == 3);
     
     const bool isTest = false;
@@ -96,7 +100,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspectiv
             }
             
             vgl_point_2d<double> finalP;
-            bool isRefine = VilPlusExtra::vil_refine_patch_position(warpedTopviews[i], q1, image, q2, patchSize, searchSize, finalP);
+            bool isRefine = VilPlusExtra::refine_patch_position(warpedTopviews[i], q1, image, q2, patchSize, searchSize, finalP);
             if (isRefine) {
                 if (isTest) {
                     pts1.push_back(q1);
@@ -163,12 +167,13 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspectiv
         VilPlus::vil_save(showImage, "camera_after_patch_match.jpg");
     }
     return isOptimize;
+    return false;
 }
 
 static void filterOutlierFromMedian(const vcl_vector<double> & data, vcl_vector<bool> & isInlier, double threshold)
 {
     vcl_vector<double> data_copy = data;
-    vcl_sort(data_copy.begin(), data_copy.end());
+   // vcl_sort(data_copy.begin(), data_copy.end());
     double v_m = data_copy[data_copy.size()/2];
     for (int i = 0; i<data.size(); i++) {
         double v = data[i];
@@ -271,7 +276,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFrames(const vpgl_perspectiv
             pts2[j].set(pts2[j].x()/2, pts2[j].y()/2);
         }
         vcl_vector<vgl_point_2d<double> > correspondence;
-        bool isRefine = VilPlusExtra::vil_refine_patch_position(half_warpedImage, pts1, half_queryImage, pts2, patchSize/2, searchSize/2, correspondence);
+        bool isRefine = VilPlusExtra::refine_patch_position(half_warpedImage, pts1, half_queryImage, pts2, patchSize/2, searchSize/2, correspondence);
         assert(isRefine);
         
         // test patch match result
@@ -451,7 +456,7 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFramesFullResolution(const v
         }
        
         vcl_vector<vgl_point_2d<double> > correspondence;
-        bool isRefine = VilPlusExtra::vil_refine_patch_position(warpedTopviews[ite], pts1, queryImage, pts2, patchSize, searchSize, correspondence);
+        bool isRefine = VilPlusExtra::refine_patch_position(warpedTopviews[ite], pts1, queryImage, pts2, patchSize, searchSize, correspondence);
         assert(isRefine);
         
         // test patch match result
@@ -549,7 +554,6 @@ bool VxlVirtualKeyframe::refinePTZCameraByVirtualKeyFramesFullResolution(const v
 bool VxlVirtualKeyframe::optimizePatchSearchSize(const vpgl_perspective_camera<double> & initCamera, const vil_image_view<vxl_byte> & queryImage,
                              const vil_image_view<vxl_byte> & topviewImage, const double threshold, int & patchSize, int & searchSize)
 {
-    
     vcl_vector<vcl_pair<int, int> > patchsize_searchsize;
     patchsize_searchsize.push_back(vcl_pair<int, int> (30, 100));
     patchsize_searchsize.push_back(vcl_pair<int, int> (30, 150));
@@ -583,7 +587,7 @@ bool VxlVirtualKeyframe::optimizePatchSearchSize(const vpgl_perspective_camera<d
         }
     }
     
-    return patchSize != -1;
+    return patchSize != -1;    
 }
 
 

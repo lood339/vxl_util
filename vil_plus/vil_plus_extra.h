@@ -29,8 +29,7 @@
 #include <vil/vil_interp.h>
 #include <vil/vil_correlation.h>
 #include <vgl/vgl_transform_2d.h>
-#include <vicl/vicl_ellipse.h>
-#include <vicl/vicl_colours.h>
+
 
 class VilPlusExtra
 {
@@ -38,12 +37,9 @@ public:
     static void vil_save(const vil_image_view<double> & image, char const* filename, bool print_logo = true);
     static void vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo = true);
     
-    // no smooth
-    static void vil_magnitude(const vil_image_view<double> &image, vil_image_view<double> &magnitude);
-    static void vil_magnitude(const vil_image_view<vxl_byte> & image, vil_image_view<double> &magnitude);
     
-    static void vil_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
-                             vil_image_view<double> & grad_i, vil_image_view<double> & grad_j, bool smooth = false);
+    
+    
     
     // gaussian smooth before gradient
     static void vil_smooth_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
@@ -83,18 +79,18 @@ public:
     // find a corresponding patch (locate in initP in kernelImage) in destImage
     // finalP: position in destImage
     // assume kernelImage as same size as destImage, and had similar content around initP
-    static bool vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vil_image_view<vxl_byte> & destImage,
+    static bool refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vil_image_view<vxl_byte> & destImage,
                                           const vgl_point_2d<double> & initP, int patchSize, int searchSize, vgl_point_2d<double> & finalP);
     
     // find single corresponding patch match from kernalImage to destImage
-    static bool vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vgl_point_2d<double> & kernelP,
+    static bool refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vgl_point_2d<double> & kernelP,
                                           const vil_image_view<vxl_byte> & destImage, const vgl_point_2d<double> & initP,
                                           int patchSize, int searchSize, vgl_point_2d<double> & finalP);
     
     // find a group of corresponding patch matches
     // (-1, -1) in finalP for miss-matching
     // kernalPts: center position of points in kernalImage, the patch should be inside of image
-    static bool vil_refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vcl_vector<vgl_point_2d<double> > & kernelPts,
+    static bool refine_patch_position(const vil_image_view<vxl_byte> & kernelImage, const vcl_vector<vgl_point_2d<double> > & kernelPts,
                                           const vil_image_view<vxl_byte> & destImage, const vcl_vector<vgl_point_2d<double> > & initPts,
                                           int patchSize, int searchSize, vcl_vector<vgl_point_2d<double> > & finalP);
 };

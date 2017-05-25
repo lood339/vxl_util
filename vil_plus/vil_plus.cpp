@@ -91,6 +91,91 @@ void VilPlus::vil_save(const vil_image_view<bool> &image, char const* filename, 
     VilPlus::vil_save(bwImage, filename, print_logo);
 }
 
+void VilPlus::vil_magnitude(const vil_image_view<double> &image, vil_image_view<double> &magnitude)
+{
+    //Ix, Iy
+    vil_image_view<double> Ix, Iy;
+    vil_sobel_3x3(image, Ix, Iy);
+    
+    //magnitude
+    magnitude = vil_image_view<double>(image.ni(), image.nj(), 1);
+    for (int y = 0; y<magnitude.nj(); y++) {
+        for (int x = 0; x<magnitude.ni(); x++) {
+            double dx = Ix(x, y, 0);
+            double dy = Iy(x, y, 0);
+            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
+        }
+    }
+}
+
+void VilPlus::vil_magnitude(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude)
+{
+    // rgb to gray
+    vil_image_view<vxl_byte> gray;
+    if (image.nplanes() == 3) {
+        gray = VilPlus::vil_to_gray(image);
+    }
+    else
+    {
+        gray = image;
+    }
+    // gray to double
+    vil_image_view<double> dImage(gray.ni(), gray.nj(), 1);
+    for (int y = 0; y<gray.nj(); y++) {
+        for (int x = 0; x<gray.ni(); x++) {
+            dImage(x, y, 0) = gray(x, y, 0);
+        }
+    }
+    
+    // double to gradient
+    VilPlus::vil_magnitude(dImage, magnitude);
+}
+
+void VilPlus::vil_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
+                                vil_image_view<double> & Ix, vil_image_view<double> & Iy, bool smooth)
+{
+    const int w = image.ni();
+    const int h = image.nj();
+    
+    // rgb to gray
+    vil_image_view<vxl_byte> gray;
+    if (image.nplanes() == 3) {
+        gray = VilPlus::vil_to_gray(image);
+    }
+    else
+    {
+        gray = image;
+    }
+    // gray to double
+    vil_image_view<double> dImage(gray.ni(), gray.nj(), 1);
+    for (int y = 0; y<gray.nj(); y++) {
+        for (int x = 0; x<gray.ni(); x++) {
+            dImage(x, y, 0) = gray(x, y, 0);
+        }
+    }
+    
+    if (smooth) {
+        vil_image_view<double> smoothedImage = vil_image_view<double>(w, h, 1);
+        vil_gauss_filter_5tap_params params(5);
+        vil_gauss_filter_5tap(dImage, smoothedImage, params);
+        dImage = smoothedImage;
+    }
+    
+    vil_sobel_3x3(dImage, Ix, Iy);
+    
+    //magnitude
+    magnitude = vil_image_view<double>(w, h, 1);
+    for (int y = 0; y<magnitude.nj(); y++) {
+        for (int x = 0; x<magnitude.ni(); x++) {
+            double dx = Ix(x, y, 0);
+            double dy = Iy(x, y, 0);
+            magnitude(x, y, 0) = sqrt(dx * dx + dy * dy);
+        }
+    }
+}
+
+
+
 
 void VilPlus::vil_save_as_vnl_matrix(const vil_image_view<double> & image, char const* filename, bool print_logo)
 {
