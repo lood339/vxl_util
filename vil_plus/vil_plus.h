@@ -160,13 +160,7 @@ class VilPlus
     static void draw_projected_box_line(const vpgl_perspective_camera<double> &camera, const vcl_vector<vgl_point_3d<double> > & vertex,
                                         const vcl_vector<vxl_byte> & color, vil_image_view<vxl_byte> & image);
     
-    // draw projected line in the image.
-    // the original image is in the center of "outImage", with black black ground
-    static void draw_line_on_background(const vpgl_perspective_camera<double> & camera,
-                                        const vcl_vector<vgl_line_segment_3d<double> > & segs,
-                                        const vil_image_view<vxl_byte> & image,
-                                        vil_image_view<vxl_byte> & outImage,
-                                        const vcl_vector<vxl_byte> & colour, int line_thickness = 2);
+    
     
     // circle parrel with x-y plane
     static void draw_projected_circle(const vpgl_perspective_camera<double> & camera, vil_image_view<vxl_byte> & image,

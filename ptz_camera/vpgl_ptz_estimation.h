@@ -42,6 +42,37 @@ struct LinePointsInCameraview
 class VpglPTZEstimation
 {
 public:
+    
+    static vnl_matrix_fixed<double, 3, 3> getInitBaseRotationLeft()
+    {
+        vnl_matrix_fixed<double, 3, 3> r;
+        r.fill(0);
+        r[0][1] = -1.0;
+        r[1][2] = -1.0;
+        r[2][0] = 1.0;
+        return r;
+    }
+    
+    static vnl_matrix_fixed<double, 3, 3> getInitBaseRotationMiddle()
+    {
+        vnl_matrix_fixed<double, 3, 3> r;
+        r.fill(0);
+        r[0][0] = 1.0;
+        r[1][2] = -1.0;
+        r[2][1] = 1.0;
+        return r;
+    }
+    
+    static vnl_matrix_fixed<double, 3, 3> getInitBaseRotationRight()
+    {
+        vnl_matrix_fixed<double, 3, 3> r;
+        r.fill(0);
+        r(0, 1) = 1.0;
+        r(1, 2) = -1.0;
+        r(2, 0) = -1.0;
+        return r;
+    }
+    
     // P = K Q S D
     // initSR: initial stationary rotation matrix
     //  1 0 0; 0 0 -1; 0 1 0 for main PTZ
@@ -58,6 +89,7 @@ public:
     // initSR: initial stationary rotation matrix
     //  1 0 0; 0 0 -1; 0 1 0 for main PTZ
     //  0 -1 0; 0 0 -1; 1 0 0 for left side view PTZ
+    //  0 1 0; 0 0 -1; -1 0 0 for right side view PTZ
     // estimate camera center and stationary rotation by point-point correspondences and point on the line
     // one camera has multiple lines, one line has multiple points
     static bool estimateCommomCameraCenterAndStationaryRotationByPointsOnLines(const vcl_vector<LinePointsInCameraview> & corres,

@@ -39,7 +39,7 @@ public:
     // pp: principle point
     // init_fl: initial value of focal length
     // wld_pts: 3D points in world coordinate, size 2
-    // img_pts: correspondent 2D points in image coordinate, size 3
+    // img_pts: correspondent 2D points in image coordinate, size 2
     // return:
     // ptz: pan, tilt, zoom. The angles are in degree
     // camera: projective (PTZ) camera

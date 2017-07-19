@@ -29,11 +29,5 @@ vgl_point_2d<T> operator * (const vnl_matrix_fixed<T, 3, 3> &m, const vgl_point_
     return vgl_point_2d<T>(q[0]/q[2], q[1]/q[2]);
 }
 
-//template <class T>
-//vnl_vector_fixed<T, 3> operator - (const vgl_point_3d<T> & p1, const vgl_point_3d<T> & p2)
-//{
-//    return vnl_vector_fixed<T, 3>( p1.x() - p2.x(), p1.y() - p2.y(), p1.z() - p2.z());
-//}
-
 
 #endif

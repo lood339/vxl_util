@@ -13,6 +13,7 @@
 #include <vil/algo/vil_gauss_filter.h>
 #include <vicl/vicl_ellipse.h>
 #include <vicl/vicl_colours.h>
+#include <vil/vil_copy.h>
 
 
 void VilPlusExtra::draw_ellipse(vil_image_view<vxl_byte> & image, const vgl_ellipse_2d<double> & ellipse, const vcl_vector<vxl_byte> & colour)
@@ -147,6 +148,36 @@ void VilPlusExtra::draw_velocity(vil_image_view<vxl_byte> & image, const vcl_vec
         vicl_overlay_line_segment(image, vgl_line_segment_2d<double>(p1, p2), colour, 2);
     }
 }
+
+void VilPlusExtra::draw_line_on_background(const vpgl_perspective_camera<double> & camera,
+                                      const vcl_vector<vgl_line_segment_3d<double> > & segs,
+                                      const vil_image_view<vxl_byte> & image,
+                                      vil_image_view<vxl_byte> & outImage,
+                                      const vcl_vector<vxl_byte> & colour, int line_thickness)
+{
+    const int w = image.ni();
+    const int h = image.nj();
+    
+    outImage = vil_image_view<vxl_byte>(w*2, h*2, 3);
+    outImage.fill(0);
+    vil_copy_to_window(image, outImage, w/2, h/2);
+    
+    vgl_vector_2d<double> displacement(w/2, h/2);
+    for (int i = 0; i<segs.size(); i++) {
+        vgl_homg_point_3d<double> p1 = vgl_homg_point_3d<double>(segs[i].point1());
+        vgl_homg_point_3d<double> p2 = vgl_homg_point_3d<double>(segs[i].point2());
+        if (camera.is_behind_camera(p1) || camera.is_behind_camera(p2)) {
+            continue;
+        }
+        vgl_point_2d<double> p3 = camera.project(segs[i].point1());
+        vgl_point_2d<double> p4 = camera.project(segs[i].point2());
+        
+        p3 += displacement;
+        p4 += displacement;
+        vicl_overlay_line_segment(outImage, vgl_line_segment_2d<double>(p3, p4), colour, line_thickness);
+    }
+}
+
 
 void VilPlusExtra::vil_cross_correlation(const vil_image_view<vxl_byte> & image1, const vil_image_view<vxl_byte> & image2,
                                     const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2,

@@ -35,11 +35,7 @@ class VilPlusExtra
 {
 public:
     static void vil_save(const vil_image_view<double> & image, char const* filename, bool print_logo = true);
-    static void vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo = true);
-    
-    
-    
-    
+    static void vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo = true);    
     
     // gaussian smooth before gradient
     static void vil_smooth_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
@@ -52,6 +48,15 @@ public:
     
     static void draw_circle(vil_image_view<vxl_byte> & image, const vcl_vector< vgl_point_2d<double> > & pts,
                             int radius, const vcl_vector<vxl_byte> & colour);
+    
+    
+    // draw projected line in the image.
+    // the original image is in the center of "outImage", with black black ground
+    static void draw_line_on_background(const vpgl_perspective_camera<double> & camera,
+                                        const vcl_vector<vgl_line_segment_3d<double> > & segs,
+                                        const vil_image_view<vxl_byte> & image,
+                                        vil_image_view<vxl_byte> & outImage,
+                                        const vcl_vector<vxl_byte> & colour, int line_thickness = 2);
     
     // draw the direction of velocity
     static void draw_velocity(vil_image_view<vxl_byte> & image, const vcl_vector< vgl_point_2d<double> > & pts,
