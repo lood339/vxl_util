@@ -38,7 +38,7 @@ public:
                                                 const vpgl_ptz_camera & initPTZ,
                                                 const VpglPTZCameraOptimizeParameter & para,
                                                 vpgl_ptz_camera & optimizedPTZ,
-                                                vpgl_perspective_camera<double> & camera);   
+                                                vpgl_perspective_camera<double> & camera);
     
 };
 

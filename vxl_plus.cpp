@@ -45,6 +45,9 @@ void VulPlus::readFileNames(const char *folder, vcl_vector<vcl_string> & file_na
         /* print all the files and directories within directory */
         while ((ent = readdir (dir)) != NULL) {
             const char *cur_post_fix = strrchr( ent->d_name, '.');
+            if (!cur_post_fix ) {
+                continue;
+            }
             //printf("cur post_fix is %s %s\n", post_fix, cur_post_fix);
             
             if (!strcmp(post_fix, cur_post_fix)) {

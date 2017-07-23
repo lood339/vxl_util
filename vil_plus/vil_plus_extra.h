@@ -35,7 +35,7 @@ class VilPlusExtra
 {
 public:
     static void vil_save(const vil_image_view<double> & image, char const* filename, bool print_logo = true);
-    static void vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo = true);    
+    static void vil_save(const vil_image_view<int> & image, char const* filename, bool print_logo = true);
     
     // gaussian smooth before gradient
     static void vil_smooth_gradient(const vil_image_view<vxl_byte> & image, vil_image_view<double> & magnitude,
