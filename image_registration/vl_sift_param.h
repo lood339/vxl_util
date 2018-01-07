@@ -7,26 +7,10 @@
 //
 
 #ifndef __QuadCopter__vl_feat_sift_parameter__
-#define __QuadCopter__vl_feat_sift_parametere__
+#define __QuadCopter__vl_feat_sift_parameter__
 
 // wrap sift feature in vl feat
 
-/*
-#include <vil/vil_image_view.h>
-#include <vcl_vector.h>
-#include <vl/sift.h>
-#include <vgl/vgl_point_2d.h>
-#include <vgl/vgl_point_3d.h>
-#include <vnl/vnl_vector_fixed.h>
-#include <vcl_utility.h>
-#include <vil/vil_fwd.h>
-
-#include <bapl/bapl_keypoint_sptr.h>
-#include <bapl/bapl_keypoint_set.h>
-#include <vector>
-
-using std::vector;
-*/ 
 
 // use Vl feat libraty generate SIFT feature in the vxl format
 // can't compare with the SIFT generate from vxl bapl_keypoint_extractor
@@ -101,9 +85,6 @@ struct vl_feat_sift_parameter
         printf("end.\n");
     }
 };
-
-
-
 
 
 #endif /* defined(__QuadCopter__vl_sift_feature__) */
