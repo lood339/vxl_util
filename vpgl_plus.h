@@ -90,6 +90,16 @@ public:
                                                 const vcl_vector<vcl_vector<vgl_point_2d<double> > > & imgConicPts,
                                                 const vpgl_perspective_camera<double> & initCamera,
                                                 vpgl_perspective_camera<double> &camera);
+    // assume: initCamera close to ground truth
+    // imgConicPts: belongs to one of the conic (circles) but do not known which one
+    static bool optimize_perspective_camera_ICP(const vcl_vector<vgl_point_2d<double> > &wldPts,
+                                                const vcl_vector<vgl_point_2d<double> > &imgPts,
+                                                const vcl_vector<vgl_line_3d_2_points<double> > & wldLines,
+                                                const vcl_vector<vcl_vector<vgl_point_2d<double> > > & imgLinePts,
+                                                const vcl_vector<vgl_conic<double> > & wldConics,
+                                                const vcl_vector<vgl_point_2d<double>> & imgConicPts,
+                                                const vpgl_perspective_camera<double> & initCamera,
+                                                vpgl_perspective_camera<double> &camera);
     
     // refine camera by minimize re-projection error
     static bool optimize_perspective_camera(const vcl_vector<vgl_point_3d<double> > & wldPts,

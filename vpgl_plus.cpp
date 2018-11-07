@@ -846,6 +846,46 @@ bool VpglPlus::optimize_perspective_camera_ICP(const vcl_vector<vgl_point_2d<dou
     return true;
 }
 
+bool VpglPlus::optimize_perspective_camera_ICP(const vcl_vector<vgl_point_2d<double> > &wldPts,
+                                               const vcl_vector<vgl_point_2d<double> > &imgPts,
+                                               const vcl_vector<vgl_line_3d_2_points<double> > & wldLines,
+                                               const vcl_vector<vcl_vector<vgl_point_2d<double> > > & imgLinePts,
+                                               const vcl_vector<vgl_conic<double> > & wldConics,
+                                               const vcl_vector<vgl_point_2d<double>> & imgConicPts,
+                                               const vpgl_perspective_camera<double> & initCamera,
+                                               vpgl_perspective_camera<double> &camera)
+{
+    // for points locate on the conics
+    vnl_matrix_fixed<double, 3, 3> H = VpglPlus::homographyFromProjectiveCamera(initCamera);
+    vcl_vector<vgl_conic<double>> projected_conics;
+    for (int i = 0; i<wldConics.size(); i++) {
+        projected_conics.push_back(VpglPlus::projectConic(H, wldConics[i]));
+    }
+    
+    vcl_vector<vcl_vector<vgl_point_2d<double>> > img_conic_pts_groups(wldConics.size());
+    // min projection error
+    for (const vgl_point_2d<double>& p: imgConicPts) {
+        int min_index = -1;
+        double min_dist = INT_MAX;
+        for (int j = 0; j<projected_conics.size(); j++) {
+            vgl_conic<double> conic_proj = projected_conics[j];
+            double dist = vgl_homg_operators_2d<double>::distance_squared(conic_proj, vgl_homg_point_2d<double>(p.x(), p.y(), 1.0));
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_index = j;
+            }
+        }
+        if (min_index != -1) {
+            img_conic_pts_groups[min_index].push_back(p);
+        }
+    }
+    
+    return VpglPlus::optimize_perspective_camera_ICP(wldPts, imgPts,
+                                                     wldLines, imgLinePts,
+                                                     wldConics, img_conic_pts_groups,
+                                                     initCamera, camera);
+}
+
 
 class optimize_perspective_camera_3d_residual :public vnl_least_squares_function
 {

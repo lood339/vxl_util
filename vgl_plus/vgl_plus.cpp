@@ -439,6 +439,20 @@ void VglPlus::clamp_box(vgl_box_2d<double> & box, double min_x, double min_y, do
     box = vgl_box_2d<double>(box_min_x, box_max_x, box_min_y, box_max_y);
 }
 
+void VglPlus::saveHomography(const char* save_name, const vgl_h_matrix_2d<double>& h)
+{
+    FILE *pf = fopen(save_name, "w");
+    if (!pf) {
+        printf("Error: can not write file %s.\n", save_name);
+    }
+    else {
+        for (int i = 0; i<3; i++) {
+            fprintf(pf, "%lf\t %lf\t %lf\n", h.get(i, 0), h.get(i, 1), h.get(i, 2));
+        }
+        fclose(pf);
+    }
+}
+
 
 
 

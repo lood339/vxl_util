@@ -83,12 +83,11 @@ public:
     
     // is "p" on the left side of the segment
     static bool isLeftSide(const vgl_line_segment_2d<double> & seg, const vgl_point_2d<double> & p);
-    
-    
-    
         
     // clamp the box in a range
     static void clamp_box(vgl_box_2d<double> & box, double min_x, double min_y, double max_x, double max_y);
+    
+    static void saveHomography(const char* save_name, const vgl_h_matrix_2d<double>& h);
     
 };
 
