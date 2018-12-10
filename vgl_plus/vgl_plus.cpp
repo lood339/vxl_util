@@ -26,6 +26,16 @@
 #include <vgl/algo/vgl_homg_operators_2d.h>
 #include <vgl/vgl_closest_point.h>
 
+#include <vgl/algo/vgl_h_matrix_2d_compute.h>
+#include <vgl/algo/vgl_h_matrix_2d_compute_linear.h>
+
+#include "bcv_vgl_h_matrix_2d_compute_linear.h"
+
+#include <vector>
+
+
+using std::vector;
+
 #include "vnl_plus.h"
 #include "vil_plus.h"
 
@@ -35,7 +45,7 @@
  
  */
 
-void VglPlus::savePointVector(const char *fileName, vcl_vector<vgl_point_2d<double>> &pts)
+void VglPlus::savePointVector(const char *fileName, vector<vgl_point_2d<double>> &pts)
 {
     vsl_b_ofstream bfs_out(fileName);
     vcl_cout<<"save point vector, size is "<<pts.size()<<vcl_endl;
@@ -46,7 +56,7 @@ void VglPlus::savePointVector(const char *fileName, vcl_vector<vgl_point_2d<doub
     bfs_out.close();
 }
 
-void VglPlus::loadPointVector(const char *fileName, vcl_vector<vgl_point_2d<double>> &pts, int pts_num)
+void VglPlus::loadPointVector(const char *fileName, vector<vgl_point_2d<double>> &pts, int pts_num)
 {
     vsl_b_ifstream bfs_in(fileName);
     assert(bfs_in.is().good() == true);
@@ -80,7 +90,7 @@ void VglPlus::loadMatrix(const char *fileName, vnl_matrix<double> &data)
     bfs_in.close();
 }
 
-void VglPlus::saveVector(const char *matName, const vcl_vector<double> & data)
+void VglPlus::saveVector(const char *matName, const vector<double> & data)
 {
     assert(data.size() > 0);
     vnl_matlab_filewrite writer(matName);
@@ -89,7 +99,7 @@ void VglPlus::saveVector(const char *matName, const vcl_vector<double> & data)
     printf("save to file: %s\n", matName);
 }
 
-void VglPlus::savePointVector(const char *fileName, const char *imageName, const vcl_vector<vgl_point_2d<double>> &wldPts, const vcl_vector< vgl_point_2d<double> > &imgPts)
+void VglPlus::savePointVector(const char *fileName, const char *imageName, const vector<vgl_point_2d<double>> &wldPts, const vector< vgl_point_2d<double> > &imgPts)
 {
     assert(wldPts.size() == imgPts.size());
     
@@ -108,7 +118,7 @@ void VglPlus::savePointVector(const char *fileName, const char *imageName, const
     bfs_out.close();
 }
 
-void VglPlus::loadPointVector(const char *fileName, vcl_string &imageName, vcl_vector<vgl_point_2d<double>> &wldPts, vcl_vector< vgl_point_2d<double> > &imgPts)
+void VglPlus::loadPointVector(const char *fileName, vcl_string &imageName, vector<vgl_point_2d<double>> &wldPts, vector< vgl_point_2d<double> > &imgPts)
 {
     assert(wldPts.size() == 0);
     assert(imgPts.size() == 0);
@@ -134,7 +144,7 @@ void VglPlus::loadPointVector(const char *fileName, vcl_string &imageName, vcl_v
     bfs_in.close();
 }
 
-void VglPlus::generateBox(const vgl_point_3d<double> & center, const vnl_vector_fixed<double, 3> & xyz_size, vcl_vector<vgl_point_3d<double> > & vertex)
+void VglPlus::generateBox(const vgl_point_3d<double> & center, const vnl_vector_fixed<double, 3> & xyz_size, vector<vgl_point_3d<double> > & vertex)
 {
     
     int sign[][3] = {-1, -1, -1,
@@ -157,12 +167,12 @@ void VglPlus::generateBox(const vgl_point_3d<double> & center, const vnl_vector_
     assert(vertex.size() == 8);
 }
 
-bool VglPlus::uniqueMutualMatch(const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2, vcl_vector<int> & matchedIndex)
+bool VglPlus::uniqueMutualMatch(const vector<vgl_point_2d<double> > & pts1, const vector<vgl_point_2d<double> > & pts2, vector<int> & matchedIndex)
 {
     assert(pts1.size() == pts2.size());
     
-    vcl_vector<int> index1;  // min distance point index in pts2
-    vcl_vector<int> index2;
+    vector<int> index1;  // min distance point index in pts2
+    vector<int> index2;
     for (int i = 0; i<pts1.size(); i++) {
         double x = pts1[i].x();
         double y = pts1[i].y();
@@ -218,14 +228,14 @@ bool VglPlus::uniqueMutualMatch(const vcl_vector<vgl_point_2d<double> > & pts1, 
     matchedIndex = index1;
     return true;
 }
-vgl_h_matrix_2d<double> VglPlus::homography(const vcl_vector<vgl_point_2d<double> > &from_pts,
-                                            const vcl_vector<vgl_point_2d<double> > &to_pts)
+vgl_h_matrix_2d<double> VglPlus::homography(const vector<vgl_point_2d<double> > &from_pts,
+                                            const vector<vgl_point_2d<double> > &to_pts)
 {
     assert(from_pts.size() == to_pts.size());
     assert(from_pts.size() >= 4);
     
-    vcl_vector<vgl_homg_point_2d<double> > pts1;
-    vcl_vector<vgl_homg_point_2d<double> > pts2;
+    vector<vgl_homg_point_2d<double> > pts1;
+    vector<vgl_homg_point_2d<double> > pts2;
     
     for (int j = 0; j<from_pts.size(); j++) {
         pts1.push_back(vgl_homg_point_2d<double>(from_pts[j].x(), from_pts[j].y(), 1.0));
@@ -236,7 +246,83 @@ vgl_h_matrix_2d<double> VglPlus::homography(const vcl_vector<vgl_point_2d<double
     return H;
 }
 
-bool VglPlus::intersectionFromLineSet(const vcl_vector<vgl_line_2d<double> > & lines, vgl_point_2d<double> & orthocenter)
+vgl_h_matrix_2d<double> VglPlus::approximateHomography(const vector<vgl_point_2d<double> > &from_pts,
+                                                       const vector<vgl_point_2d<double> > &to_pts)
+{
+    assert(from_pts.size() == to_pts.size());
+    assert(from_pts.size() >= 3);
+    
+    const int N = (int)from_pts.size();
+    
+    vnl_matrix<double> A(N*2, 6);
+    A.fill(0);
+    vnl_matrix<double> b(N*2, 1);
+    vnl_matrix<double> x;
+    for (int i = 0; i<from_pts.size(); i++) {
+        int row = 2*i;
+        A[row][0] = from_pts[i].x();
+        A[row][1] = from_pts[i].y();
+        A[row][2] = 1.0;
+        b[row][0] = to_pts[i].x();
+        
+        A[row+1][0+3] = from_pts[i].x();
+        A[row+1][1+3] = from_pts[i].y();
+        A[row+1][2+3] = 1.0;
+        b[row+1][0] = to_pts[i].y();
+    }
+    VnlPlus::Axb(A, b, x);
+    
+    vnl_matrix_fixed<double,3,3> h;
+    h.set_identity();
+    h[0][0] = x[0][0];
+    h[0][1] = x[1][0];
+    h[0][2] = x[2][0];
+    h[1][0] = x[3][0];
+    h[1][1] = x[4][0];
+    h[1][2] = x[5][0];
+    
+    vgl_h_matrix_2d<double> H(h);
+    
+    return H;    
+}
+
+bool VglPlus::homography(const vector<vgl_point_2d<double> > &from_pts,
+                                   const vector<vgl_point_2d<double> > &to_pts,
+                                   const vector<vgl_line_segment_2d<double>> & from_lines,
+                                   const vector<vgl_line_segment_2d<double>> & to_lines,
+                     vgl_h_matrix_2d<double>& H)
+{
+    assert(from_pts.size() == to_pts.size());
+    assert(from_lines.size() == to_lines.size());
+    assert(from_pts.size() + from_lines.size() >= 4);
+    
+    vector<vgl_homg_point_2d<double>> p1;
+    vector<vgl_homg_point_2d<double>> p2;
+    vector<vgl_homg_line_2d<double>> l1;
+    vector<vgl_homg_line_2d<double>> l2;
+    for (const auto& p: from_pts) {
+        p1.push_back(vgl_homg_point_2d<double>(p));
+    }
+    for (const auto& p: to_pts) {
+        p2.push_back(vgl_homg_point_2d<double>(p));
+    }
+    
+    for (const auto& l: from_lines) {
+        l1.push_back(vgl_homg_line_2d<double>(vgl_homg_point_2d<double>(l.point1() ),
+                                              vgl_homg_point_2d<double>(l.point2() )));
+    }
+    
+    for (const auto& l: to_lines) {
+        l2.push_back(vgl_homg_line_2d<double>(vgl_homg_point_2d<double>(l.point1() ),
+                                              vgl_homg_point_2d<double>(l.point2() )));
+    }
+    
+    bcv_vgl_h_matrix_2d_compute_linear hmcl;
+    bool is_valid = hmcl.compute_pl(p1, p2, l1, l2, H);
+    return is_valid;
+}
+
+bool VglPlus::intersectionFromLineSet(const vector<vgl_line_2d<double> > & lines, vgl_point_2d<double> & orthocenter)
 {
     assert(lines.size() >= 2);
     
@@ -297,7 +383,7 @@ bool VglPlus::mergeTwolineSegmentOnALine(const vgl_line_segment_2d<double> & seg
     }   
     
     double dis_max = -1.0;
-    vcl_vector<vgl_point_2d<double> > pts;
+    vector<vgl_point_2d<double> > pts;
     pts.push_back(seg1.point1());
     pts.push_back(seg1.point2());
     pts.push_back(seg2.point1());
@@ -407,7 +493,7 @@ bool VglPlus::isLeftSide(const vgl_line_segment_2d<double> & seg, const vgl_poin
 class LinePoints
 {
 public:
-    vcl_vector<vgl_point_2d<double> > pts_;
+    vector<vgl_point_2d<double> > pts_;
     bool valid_;
     vgl_line_2d<double> line_;
     vgl_line_segment_2d<double> seg_;  // merged segment

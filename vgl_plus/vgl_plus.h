@@ -9,13 +9,14 @@
 #ifndef __CameraPlaning__vgl_plus__
 #define __CameraPlaning__vgl_plus__
 
-#include <vcl_vector.h>
+#include <vector>
 #include <vgl/vgl_point_2d.h>
 #include <vnl/vnl_matrix.h>
 #include <vnl/vnl_vector.h>
 #include <vcl_string.h>
 #include <vgl/algo/vgl_h_matrix_2d.h>
 
+using std::vector;
 
 class VglPlus
 {
@@ -45,26 +46,37 @@ public:
         return p.x() >= min_x && p.x() < max_x && p.y() >= min_y && p.y() < max_y;
     }
 
-    static void savePointVector(const char *fileName, vcl_vector<vgl_point_2d<double>> &pts);
-    static void loadPointVector(const char *fileName, vcl_vector<vgl_point_2d<double>> &pts, int pts_num);
+    static void savePointVector(const char *fileName, vector<vgl_point_2d<double>> &pts);
+    static void loadPointVector(const char *fileName, vector<vgl_point_2d<double>> &pts, int pts_num);
     static void saveMatrix(const char *fileName, const vnl_matrix<double> & data);
     static void loadMatrix(const char *fileName, vnl_matrix<double> &data);
-    static void saveVector(const char *matName, const vcl_vector<double> & data);
+    static void saveVector(const char *matName, const vector<double> & data);
     
-    static void savePointVector(const char *fileName, const char *imageName, const vcl_vector<vgl_point_2d<double>> &wldPts, const vcl_vector< vgl_point_2d<double> > &imgPts);
-    static void loadPointVector(const char *fileName, vcl_string &imageName, vcl_vector<vgl_point_2d<double>> &wldPts, vcl_vector< vgl_point_2d<double> > &imgPts);
+    static void savePointVector(const char *fileName, const char *imageName, const vector<vgl_point_2d<double>> &wldPts, const vector< vgl_point_2d<double> > &imgPts);
+    static void loadPointVector(const char *fileName, vcl_string &imageName, vector<vgl_point_2d<double>> &wldPts, vector< vgl_point_2d<double> > &imgPts);
     
     // generate vertex of a simple box, line 0123, 4567 04 ... 37
-    static void generateBox(const vgl_point_3d<double> & center, const vnl_vector_fixed<double, 3> & xyz_size, vcl_vector<vgl_point_3d<double> > & vertex);
+    static void generateBox(const vgl_point_3d<double> & center, const vnl_vector_fixed<double, 3> & xyz_size, vector<vgl_point_3d<double> > & vertex);
     
     // fing smallest distance between two group pts
     // matchedIndex: matched index for pts1 from pts2
-    static bool uniqueMutualMatch(const vcl_vector<vgl_point_2d<double> > & pts1, const vcl_vector<vgl_point_2d<double> > & pts2, vcl_vector<int> & matchedIndex);
+    static bool uniqueMutualMatch(const vector<vgl_point_2d<double> > & pts1, const vector<vgl_point_2d<double> > & pts2, vector<int> & matchedIndex);
     
-    static vgl_h_matrix_2d<double> homography(const vcl_vector<vgl_point_2d<double> > &from_pts, const vcl_vector<vgl_point_2d<double> > &to_pts);
+    static vgl_h_matrix_2d<double> homography(const vector<vgl_point_2d<double> > &from_pts, const vector<vgl_point_2d<double> > &to_pts);
+    
+    // approximate homograhy using affine transform
+    static vgl_h_matrix_2d<double> approximateHomography(const vector<vgl_point_2d<double> > &from_pts,
+                                                         const vector<vgl_point_2d<double> > &to_pts);
+    
+    static bool homography(const vector<vgl_point_2d<double> > &from_pts,
+                                              const vector<vgl_point_2d<double> > &to_pts,
+                                              const vector<vgl_line_segment_2d<double>> & from_lines,
+                                              const vector<vgl_line_segment_2d<double>> & to_lines,
+                          vgl_h_matrix_2d<double>& H);
+    
     
     // orthocenter (average position) of all intersection
-    static bool intersectionFromLineSet(const vcl_vector<vgl_line_2d<double> > & lines, vgl_point_2d<double> & orthocenter);
+    static bool intersectionFromLineSet(const vector<vgl_line_2d<double> > & lines, vgl_point_2d<double> & orthocenter);
     
     
     // paralle move 2d line segment

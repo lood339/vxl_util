@@ -9,14 +9,14 @@
 #include "vxl_sgs_smooth.h"
 #include <assert.h>
 
-void VxlSgsSmooth::smooth(vcl_vector<double> & data, int window_size, int order)
+void VxlSgsSmooth::smooth(std::vector<double> & data, int window_size, int order)
 {
     double *pSmoothed = calc_sgsmooth((int)data.size(), &data[0], window_size, order);
     assert(pSmoothed == &data[0]);
 }
 
-bool VxlSgsSmooth::smooth(const vcl_vector<vnl_vector<double> > & data,
-                          vcl_vector<vnl_vector<double> > & smoothedData, int window_size, int order)
+bool VxlSgsSmooth::smooth(const std::vector<vnl_vector<double> > & data,
+                          std::vector<vnl_vector<double> > & smoothedData, int window_size, int order)
 {
     smoothedData = data;
     
@@ -24,7 +24,7 @@ bool VxlSgsSmooth::smooth(const vcl_vector<vnl_vector<double> > & data,
     const int dimNum = (int)data[0].size();
     const int sz = (int)data.size();
     for (int i = 0; i<dimNum; i++) {
-        vcl_vector<double> orgData(sz);
+        std::vector<double> orgData(sz);
         
         for (int j = 0; j<data.size(); j++) {
             orgData[j] = data[j][i];
