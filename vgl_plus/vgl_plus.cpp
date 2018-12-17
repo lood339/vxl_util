@@ -30,6 +30,7 @@
 #include <vgl/algo/vgl_h_matrix_2d_compute_linear.h>
 
 #include "bcv_vgl_h_matrix_2d_compute_linear.h"
+#include "bcv_vgl_h_matrix_2d_optimize_lmq.h"
 
 #include <vector>
 
@@ -298,8 +299,6 @@ bool VglPlus::homography(const vector<vgl_point_2d<double> > &from_pts,
     
     vector<vgl_homg_point_2d<double>> p1;
     vector<vgl_homg_point_2d<double>> p2;
-    vector<vgl_homg_line_2d<double>> l1;
-    vector<vgl_homg_line_2d<double>> l2;
     for (const auto& p: from_pts) {
         p1.push_back(vgl_homg_point_2d<double>(p));
     }
@@ -307,9 +306,16 @@ bool VglPlus::homography(const vector<vgl_point_2d<double> > &from_pts,
         p2.push_back(vgl_homg_point_2d<double>(p));
     }
     
+    vector<vgl_homg_line_2d<double>> l1;
+    vector<vgl_homg_line_2d<double>> l2;
+    vector<vector<vgl_homg_point_2d<double>> > point_on_line1;
     for (const auto& l: from_lines) {
         l1.push_back(vgl_homg_line_2d<double>(vgl_homg_point_2d<double>(l.point1() ),
                                               vgl_homg_point_2d<double>(l.point2() )));
+        vector<vgl_homg_point_2d<double>> pts;
+        pts.push_back(vgl_homg_point_2d<double>(l.point1() ));
+        pts.push_back(vgl_homg_point_2d<double>(l.point2() ));
+        point_on_line1.push_back(pts);
     }
     
     for (const auto& l: to_lines) {
@@ -319,6 +325,16 @@ bool VglPlus::homography(const vector<vgl_point_2d<double> > &from_pts,
     
     bcv_vgl_h_matrix_2d_compute_linear hmcl;
     bool is_valid = hmcl.compute_pl(p1, p2, l1, l2, H);
+    
+    if (is_valid) {
+        bcv_vgl_h_matrix_2d_optimize_lmq hcl_lmq(H);
+        vgl_h_matrix_2d<double> opt_h;
+        is_valid = hcl_lmq.optimize_pl(p1, p2, point_on_line1, l2, opt_h);
+        if (is_valid) {
+            H = opt_h;
+            std::cout<<opt_h<<std::endl;
+        }
+    }   
     return is_valid;
 }
 

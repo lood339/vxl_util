@@ -9,6 +9,7 @@
 #include "bcv_vgl_h_matrix_2d_compute_linear.h"
 #include <vgl/algo/vgl_norm_trans_2d.h>
 #include <vnl/algo/vnl_svd.h>
+#include <vnl/vnl_det.h>
 
 
 constexpr int TM_UNKNOWNS_COUNT = 9;
@@ -200,5 +201,11 @@ bool bcv_vgl_h_matrix_2d_compute_linear::compute_pl(vector<vgl_homg_point_2d<dou
     //  p2 = (tr2^-1 hh tr1) p1 = H p1
     vgl_h_matrix_2d<double> tr2_inv = tr2.get_inverse();
     H = tr2_inv*hh*tr1;
+    
+    // cheirality
+    if ( vnl_det(H.get_matrix()) < 0 )
+    {
+        H = vgl_h_matrix_2d<double>(-H.get_matrix());
+    }
     return true;
 }
