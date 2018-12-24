@@ -14,7 +14,9 @@
 #include <vgl/vgl_point_2d.h>
 #include <vgl/vgl_line_2d.h>
 #include <vgl/vgl_conic.h>
+#include <vector>
 
+using std::vector;
 // 4 * 4 colum major matrix
 struct OpenglCamera
 {
@@ -45,6 +47,15 @@ public:
                            const vcl_vector<vgl_point_2d<double> > &imgPts,
                            const vgl_point_2d<double> &principlePoint,
                            double focalLength,
+                           vpgl_perspective_camera<double> &camera);
+    
+    // First, estimate H, then deompose camera parameters from H
+    // assome camera center Z > 0
+    static bool init_calib(const vector<vgl_point_2d<double> >& wld_pts,
+                           const vector<vgl_point_2d<double> >& img_pts,
+                           const vector<vgl_line_segment_2d<double>>& world_line_segment,
+                           const vector<vgl_line_segment_2d<double>>& image_line_segment,
+                           const vgl_point_2d<double> &principlePoint,
                            vpgl_perspective_camera<double> &camera);
     
     

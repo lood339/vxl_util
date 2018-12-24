@@ -169,6 +169,10 @@ optimize_pl(std::vector<vgl_homg_point_2d<double> > const& points1,
         h_optimized.set(hv.data_block());
     else
         h_optimized = initial_h_;
-    lsq.reprojection_error(hv);
+    //lsq.reprojection_error(hv);
+    if ( vnl_det(h_optimized.get_matrix()) < 0 )
+    {
+        h_optimized = vgl_h_matrix_2d<double>(-h_optimized.get_matrix());
+    }
     return success;
 }
