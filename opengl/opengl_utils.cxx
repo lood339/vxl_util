@@ -10,7 +10,7 @@
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
 
-void OpenglUtils::drawCross(const vcl_vector<vgl_point_2d<double> > &pts, float width)
+void OpenglUtils::drawCross(const vector<vgl_point_2d<double> > &pts, float width)
 {
     glBegin(GL_LINES);
     for (unsigned int i = 0; i<pts.size(); i++)
@@ -36,7 +36,7 @@ void OpenglUtils::drawCross(const vcl_vector<vgl_point_2d<double> > &pts, float 
     glEnd();
 }
 
-void OpenglUtils::drawLineSegment(const vcl_vector< vgl_line_segment_2d< double > > &lines)
+void OpenglUtils::drawLineSegment(const vector< vgl_line_segment_2d< double > > &lines)
 {
     glBegin(GL_LINES);
     for (unsigned int i = 0; i<lines.size(); i++) {
@@ -50,7 +50,7 @@ void OpenglUtils::drawLineSegment(const vcl_vector< vgl_line_segment_2d< double 
     
 }
 
-void OpenglUtils::drawCircle(const vcl_vector<vgl_point_2d<double> > & centers, float radius)
+void OpenglUtils::drawCircle(const vector<vgl_point_2d<double> > & centers, float radius)
 {
     const float DEG2RAD = 3.14159/180;
     for (unsigned int i = 0; i<centers.size(); i++) {
@@ -63,7 +63,7 @@ void OpenglUtils::drawCircle(const vcl_vector<vgl_point_2d<double> > & centers, 
     }
 }
 
-void OpenglUtils::drawBox(const vcl_vector<vgl_point_2d<double> > &pts, float width)
+void OpenglUtils::drawBox(const vector<vgl_point_2d<double> > &pts, float width)
 {
     glBegin(GL_LINES);
     for (unsigned int i = 0; i<pts.size(); i++)

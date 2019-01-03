@@ -10,7 +10,7 @@
 #define __PlanarAlign__opengl_utils__
 
 #include <vxl_config.h>
-#include <vcl_vector.h>
+#include <vector.h>
 #include <vgl/vgl_point_2d.h>
 #include <vil/vil_image_view.h>
 #include <vgl/vgl_line_segment_2d.h>
@@ -20,10 +20,10 @@
 class OpenglUtils
 {
 public:
-    static void drawCross(const vcl_vector<vgl_point_2d<double> > &pts, float width);
-    static void drawLineSegment(const vcl_vector< vgl_line_segment_2d< double > > &lines);
-    static void drawCircle(const vcl_vector<vgl_point_2d<double> > & centers, float radius);
-    static void drawBox(const vcl_vector<vgl_point_2d<double> > &pts, float width);
+    static void drawCross(const vector<vgl_point_2d<double> > &pts, float width);
+    static void drawLineSegment(const vector< vgl_line_segment_2d< double > > &lines);
+    static void drawCircle(const vector<vgl_point_2d<double> > & centers, float radius);
+    static void drawBox(const vector<vgl_point_2d<double> > &pts, float width);
 };
 
 

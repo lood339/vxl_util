@@ -56,8 +56,6 @@ public:
 };
 
 
-void calc_projectionMatrix(const float *eye, const float *center,						 
-						   const float *up, float *matrix);
 
 inline void gl_red(void){glColor3f(1.0, 0.0, 0.0);}
 inline void gl_green(void){glColor3f(0.0, 1.0, 0.0);}
